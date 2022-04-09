@@ -22,7 +22,7 @@ api:
     server:
         scheme: http
         host: 0.0.0.0
-        port: 69331
+        port: 6931
         base-url: /queue-manager-api
     scheduler:
         time-zone: ${SCHEDULER_TIMEZONE:Brazil/East}
