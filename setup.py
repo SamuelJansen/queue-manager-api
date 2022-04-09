@@ -14,30 +14,33 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.0.7'
+VERSION = '0.0.8'
 
 NAME = 'queue_manager_api'
+PACKAGE_NAME = NAME
+REPOSITORY_NAME = StringHelper.toSnakeCase(NAME)
+URL = f'https://github.com/SamuelJansen/{REPOSITORY_NAME}/'
 API = 'api'
 SRC = 'src'
 LIBRARY = 'library'
 RESOURCE = 'resource'
-URL = f'https://github.com/SamuelJansen/{StringHelper.toSnakeCase(NAME)}/'
+URL = f'https://github.com/SamuelJansen/{REPOSITORY_NAME}/'
 
 OS_SEPARATOR = os.path.sep
 
 setup(
     name = NAME,
     packages = [
-        API,
-        f'{API}',
-        f'{API}{OS_SEPARATOR}{SRC}',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}annotation',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}constant',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}dto',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}enumeration',
-        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}util',
-        f'{API}{OS_SEPARATOR}{RESOURCE}'
+        PACKAGE_NAME,
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}annotation',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}constant',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}dto',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}enumeration',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}util',
+        f'{PACKAGE_NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{RESOURCE}'
     ],
     # data_files = [
     #     (STATIC_PACKAGE_PATH, [
@@ -54,9 +57,9 @@ setup(
     download_url = f'{URL}archive/v{VERSION}.tar.gz',
     keywords = ['queue', 'topic'],
     install_requires = [
-        'python-framework<1.0.0,>=0.3.47',
-        'globals<1.0,>=0.3.29',
-        'python-helper<1.0,>=0.3.46'
+        'python-framework<1.0.0,>=0.3.49',
+        'globals<1.0,>=0.3.34',
+        'python-helper<1.0,>=0.3.49'
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',
