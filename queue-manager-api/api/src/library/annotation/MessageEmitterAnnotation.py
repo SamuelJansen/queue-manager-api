@@ -16,9 +16,9 @@ from python_framework import (
     GlobalException
 )
 
-from api.src.library.util import AnnotationUtil
-from api.src.library.dto import MessageDto
-from api.src.library.constant import HttpEmitterConstant
+from queue_manager_api.api.src.library.util import AnnotationUtil
+from queue_manager_api.api.src.library.dto import MessageDto
+from queue_manager_api.api.src.library.constant import HttpEmitterConstant
 
 
 DEFAULT_TIMEOUT = 2

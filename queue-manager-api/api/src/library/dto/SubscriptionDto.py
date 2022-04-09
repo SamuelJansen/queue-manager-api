@@ -1,6 +1,6 @@
 from python_framework import ConverterStatic
 
-from from api.src.library.constant import SubscriptionConstant
+from queue_manager_api.api.src.library.constant import SubscriptionConstant
 
 
 class SubscriptionRequestDto:

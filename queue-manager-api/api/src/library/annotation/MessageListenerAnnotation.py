@@ -16,8 +16,8 @@ from python_framework import (
     LogConstant
 )
 
-from api.src.library.util import AnnotationUtil
-from api.src.library.dto import MessageDto
+from queue_manager_api.api.src.library.util import AnnotationUtil
+from queue_manager_api.api.src.library.dto import MessageDto
 
 
 DEFAULT_TIMEOUT = 2
