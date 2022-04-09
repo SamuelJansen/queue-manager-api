@@ -47,4 +47,4 @@ class QueueModelMapper:
     @MapperMethod(requestClass=[str, QueueModel.QueueModel])
     def overrideModelOriginKey(self, originKey, model):
         model.originKey = originKey
-        self.mapper.subscription.overrideAllModelOriginKey(originKey, model.subscriptionList)
+        self.mapper.subscriptionModel.overrideAllModelOriginKey(originKey, model.subscriptionList)
