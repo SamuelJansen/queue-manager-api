@@ -22,7 +22,7 @@ api:
     server:
         scheme: http
         host: 0.0.0.0
-        port: 63001
+        port: 69331
         base-url: /queue-manager-api
     scheduler:
         time-zone: ${SCHEDULER_TIMEZONE:Brazil/East}
@@ -39,12 +39,11 @@ api:
 queue:
     message:
         listener:
-            url: ${QUEUE_MESSAGE_LISTENER_URL:https:my-emitter-host/my/listener/uri}
+            url: ${QUEUE_MESSAGE_LISTENER_URL:https://my-emitter-host/my/listener/uri}
             timeout: 2
         emitter:
-            url: ${QUEUE_MESSAGE_EMITTER_URL:https:my-emitter-host/my/emitter/uri}
+            url: ${QUEUE_MESSAGE_LISTENER_URI:/my/emitter/uri}
             timeout: 2
-
 
 swagger:
     # schemes: [${api.server.scheme}] ###- bug

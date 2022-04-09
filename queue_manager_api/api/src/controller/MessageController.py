@@ -4,7 +4,7 @@ from enumeration.AccessDomain import AccessDomain
 import MessageDto
 
 
-@Controller(url = '/api/message/emitter', tag='Message', description='Message controller')
+@Controller(url = '/message/emitter', tag='Message', description='Message controller')
 class MessageController:
 
     @ControllerMethod(url = '/',

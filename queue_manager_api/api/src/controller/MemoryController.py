@@ -3,7 +3,7 @@ from python_framework import Controller, ControllerMethod, HttpStatus
 from enumeration.AccessDomain import AccessDomain
 
 
-@Controller(url = '/api/memory', tag='Memory', description='Memory controller')
+@Controller(url = '/memory', tag='Memory', description='Memory controller')
 class MemoryController:
 
     @ControllerMethod(url = '/'
