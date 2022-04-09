@@ -13,7 +13,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.0.4'
+VERSION = '0.0.5'
 
 NAME = 'queue-manager-api'
 API = 'api'
