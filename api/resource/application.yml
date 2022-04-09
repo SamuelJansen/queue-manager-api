@@ -39,7 +39,7 @@ api:
 queue:
     message:
         listener:
-            url: ${QUEUE_MESSAGE_LISTENER_URL:https:my-emitter-host/my/emitter/uri}
+            url: ${QUEUE_MESSAGE_LISTENER_URL:https:my-emitter-host/my/listener/uri}
             timeout: 2
         emitter:
             url: ${QUEUE_MESSAGE_EMITTER_URL:https:my-emitter-host/my/emitter/uri}

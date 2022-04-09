@@ -14,7 +14,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.0.6'
+VERSION = '0.0.7'
 
 NAME = 'queue_manager_api'
 API = 'api'
@@ -28,16 +28,16 @@ OS_SEPARATOR = os.path.sep
 setup(
     name = NAME,
     packages = [
-        NAME,
-        f'{NAME}{OS_SEPARATOR}{API}',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}annotation',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}constant',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}dto',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}enumeration',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}util',
-        f'{NAME}{OS_SEPARATOR}{API}{OS_SEPARATOR}{RESOURCE}'
+        API,
+        f'{API}',
+        f'{API}{OS_SEPARATOR}{SRC}',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}annotation',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}constant',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}dto',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}enumeration',
+        f'{API}{OS_SEPARATOR}{SRC}{OS_SEPARATOR}{LIBRARY}{OS_SEPARATOR}util',
+        f'{API}{OS_SEPARATOR}{RESOURCE}'
     ],
     # data_files = [
     #     (STATIC_PACKAGE_PATH, [
