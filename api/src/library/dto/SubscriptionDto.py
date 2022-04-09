@@ -1,6 +1,6 @@
 from python_framework import ConverterStatic
 
-from constant import SubscriptionConstant
+from from api.src.library.constant import SubscriptionConstant
 
 
 class SubscriptionRequestDto:

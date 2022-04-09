@@ -31,19 +31,19 @@ api:
     listener:
         enable: ${ENABLE_LISTENER_API:True}
         mute-logs: False
-        timeout: 2
+        timeout: 30
     emitter:
         enable: ${ENABLE_EMITTER_API:True}
         mute-logs: False
-        timeout: 2
+        timeout: 30
 queue:
     message:
         listener:
             url: ${QUEUE_MESSAGE_LISTENER_URL:https:my-emitter-host/my/emitter/uri}
-            timeout: 4
+            timeout: 2
         emitter:
             url: ${QUEUE_MESSAGE_EMITTER_URL:https:my-emitter-host/my/emitter/uri}
-            timeout: 4
+            timeout: 2
 
 
 swagger:

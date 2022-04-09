@@ -16,9 +16,9 @@ from python_framework import (
     GlobalException
 )
 
-from util import AnnotationUtil
-import MessageDto
-from constant import HttpEmitterConstant
+from api.src.library.util import AnnotationUtil
+from api.src.library.dto import MessageDto
+from api.src.library.constant import HttpEmitterConstant
 
 
 DEFAULT_TIMEOUT = 2

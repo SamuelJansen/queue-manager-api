@@ -16,10 +16,8 @@ from python_framework import (
     LogConstant
 )
 
-from util import AnnotationUtil
-
-from config import MessageConfig
-import MessageDto
+from api.src.library.util import AnnotationUtil
+from api.src.library.dto import MessageDto
 
 
 DEFAULT_TIMEOUT = 2
