@@ -12,6 +12,7 @@ class SubscriptionModel(MODEL):
 
     id = sap.Column(sap.Integer(), sap.Sequence(f'{__tablename__}{sap.ID}{sap.SEQ}'), primary_key=True)
     key = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False, unique=True)
+    originKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
     url = sap.Column(sap.String(sap.LARGE_STRING_SIZE), nullable=False)
     onErrorUrl = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE))
     maxTries = sap.Column(sap.Integer(), nullable=False, default=SubscriptionConstant.DEFAULT_MAX_TRIES)
@@ -22,6 +23,7 @@ class SubscriptionModel(MODEL):
     def __init__(self,
         id = None,
         key = None,
+        originKey = None,
         url = None,
         onErrorUrl = None,
         maxTries = None,
@@ -31,6 +33,7 @@ class SubscriptionModel(MODEL):
     ):
         self.id = id
         self.key = key
+        self.originKey = originKey
         self.url = url
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
@@ -45,4 +48,4 @@ class SubscriptionModel(MODEL):
 
 
     def __repr__(self):
-        return f'{self.__tablename__}(id={self.id}, key={self.key}, queueKey={self.getQueueKey()}, maxTries={self.maxTries}, backOff={self.backOff}, url={self.url}, onErrorUrl={self.onErrorUrl})'
+        return f'{self.__tablename__}(id={self.id}, key={self.key}, queueKey={self.getQueueKey()}, originKey={self.originKey}, maxTries={self.maxTries}, backOff={self.backOff}, url={self.url}, onErrorUrl={self.onErrorUrl})'

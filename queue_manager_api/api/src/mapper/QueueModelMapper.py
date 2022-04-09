@@ -8,8 +8,10 @@ import QueueDto
 @Mapper()
 class QueueModelMapper:
 
-    @MapperMethod(requestClass=[[QueueDto.QueueRequestDto]], responseClass=[[QueueModel.QueueModel]])
-    def fromRequestDtoListToModelList(self, dtoList, modelList):
+    @MapperMethod(requestClass=[[QueueDto.QueueRequestDto], str], responseClass=[[QueueModel.QueueModel]])
+    def fromRequestDtoListToModelList(self, dtoList, originKey, modelList):
+        for model in modelList:
+            self.overrideModelOriginKey(originKey, model)
         return modelList
 
 
@@ -18,8 +20,9 @@ class QueueModelMapper:
         return dtoList
 
 
-    @MapperMethod(requestClass=[QueueDto.QueueRequestDto], responseClass=[QueueModel.QueueModel])
-    def fromRequestDtoToModel(self, dto, model):
+    @MapperMethod(requestClass=[QueueDto.QueueRequestDto, str], responseClass=[QueueModel.QueueModel])
+    def fromRequestDtoToModel(self, dto, originKey, model):
+        self.overrideModelOriginKey(originKey, model)
         return model
 
 
@@ -39,3 +42,9 @@ class QueueModelMapper:
                 )
             else:
                 model.subscriptionList.append(self.mapper.subscriptionModel.fromRequestDtoToModel(subscriptionDto))
+
+
+    @MapperMethod(requestClass=[str, QueueModel.QueueModel])
+    def overrideModelOriginKey(self, originKey, model):
+        model.originKey = originKey
+        self.mapper.subscription.overrideAllModelOriginKey(originKey, model.subscriptionList)

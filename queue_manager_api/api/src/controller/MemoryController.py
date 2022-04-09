@@ -6,8 +6,8 @@ from enumeration.AccessDomain import AccessDomain
 @Controller(url = '/memory', tag='Memory', description='Memory controller')
 class MemoryController:
 
-    @ControllerMethod(url = '/'
-        # apiKey = [AccessDomain.API],
+    @ControllerMethod(url = '/',
+        apiKeyRequired = [AccessDomain.ADMIN]
         # requestClass = [MessageDto.MessageRequestDto]
         # responseClass = [MessageDto.MessageResponseDto]
         # responseClass = [MessageDto.MessageRequestDto]

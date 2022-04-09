@@ -3,6 +3,7 @@ from python_framework import Service, ServiceMethod
 
 import QueueDto
 import QueueModel
+from util import AuditoryUtil
 
 
 @Service()
@@ -13,7 +14,7 @@ class QueueModelService:
         self.validator.queueModel.validateRequestDto(dto)
         model = self.findOptionalModelByKey(dto.key)
         if ObjectHelper.isNone(model):
-            model = self.mapper.queueModel.fromRequestDtoToModel(dto)
+            model = self.mapper.queueModel.fromRequestDtoToModel(dto, AuditoryUtil.getApiKeyIdentity(service=self))
         else:
             self.mapper.queueModel.overrideModel(model, dto)
         return self.mapper.queueModel.fromModelToResponseDto(self.persist(model))
