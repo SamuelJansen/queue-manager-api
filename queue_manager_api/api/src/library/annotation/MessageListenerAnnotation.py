@@ -111,7 +111,7 @@ def MessageListenerMethod(
             resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
         )
         resourceInstanceMethodMuteStacktraceOnBusinessRuleException = muteStacktraceOnBusinessRuleException
-        @wrapperManager.api.app.route(f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}', methods=['POST'])
+        @wrapperManager.api.app.route(f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}', methods=['POST'], endpoint=f'{resourceInstanceMethod.__qualname__}')
         def innerResourceInstanceMethod(*args, **kwargs):
             args = wrapperManager.addResourceInFrontOfArgs(args)
             messageAsJson = FlaskUtil.safellyGetRequestBody()

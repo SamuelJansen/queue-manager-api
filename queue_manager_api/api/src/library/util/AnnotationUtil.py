@@ -48,7 +48,6 @@ def initializeComunicationLayerResource(
             defaulTimeout
         )
     )
-    print(f'initializeComunicationLayerResource, {resourceInstance.timeout}')
     resourceInstance.logRequest = logRequest
     resourceInstance.logResponse = logResponse
     resourceInstance.globals = api.globals
