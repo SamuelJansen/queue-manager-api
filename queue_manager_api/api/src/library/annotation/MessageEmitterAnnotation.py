@@ -260,6 +260,7 @@ def MessageEmitterMethod(
                 requestParamClass,
                 requestClass,
                 responseClass,
+                produces,
                 httpClientResolversMap,
                 messageCreationRequest.groupKey,
                 messageCreationRequest.key
@@ -295,6 +296,7 @@ def resolveClientCall(
     requestParamClass,
     requestClass,
     responseClass,
+    produces,
     httpClientResolversMap,
     resourceMethodGroupKey,
     resourceMethodMessageKey

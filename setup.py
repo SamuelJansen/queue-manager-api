@@ -14,7 +14,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.0.11'
+VERSION = '0.0.12'
 
 NAME = 'queue_manager_api'
 PACKAGE_NAME = NAME
@@ -57,7 +57,7 @@ setup(
     download_url = f'{URL}archive/v{VERSION}.tar.gz',
     keywords = ['queue', 'topic'],
     install_requires = [
-        'python-framework<1.0.0,>=0.3.54',
+        'python-framework<1.0.0,>=0.3.55',
         'globals<1.0,>=0.3.34',
         'python-helper<1.0,>=0.3.49'
     ],
