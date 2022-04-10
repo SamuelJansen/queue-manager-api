@@ -14,7 +14,6 @@ LOG_LEVEL = log.STATUS
 @Service()
 class MessageService:
 
-
     @ServiceMethod(requestClass=[MessageDto.MessageRequestDto])
     def acceptWithoutValidation(self, dto):
         self.validator.messageModel.validateDoesNotExists(dto)
@@ -38,6 +37,8 @@ class MessageService:
             self.mapper.message.overrideAllModelStatus(modelList, ModelStatus.PROCESSED)
         except Exception as exception:
             self.mapper.message.overrideAllModelStatus(modelList, ModelStatus.PROCESSED_WITH_ERRORS)
+            for model in modelList:
+                model.addHistory(exception)
             raise exception
 
 

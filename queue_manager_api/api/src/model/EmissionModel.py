@@ -16,7 +16,9 @@ class EmissionModel(MODEL):
     key = sap.Column(sap.String(3*sap.MEDIUM_STRING_SIZE), nullable=False, unique=True)
     queueKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
     subscriptionKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
+    groupKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
     messageKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
+    originKey = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE), nullable=False)
 
     url = sap.Column(sap.String(sap.LARGE_STRING_SIZE), nullable=False)
     tries = sap.Column(sap.Integer(), nullable=False, default=EmissionConstant.ZERO_TRIES)
@@ -38,7 +40,9 @@ class EmissionModel(MODEL):
         key = None,
         queueKey = None,
         subscriptionKey = None,
+        groupKey = None,
         messageKey = None,
+        originKey = None,
         url = None,
         tries = None,
         onErrorUrl = None,
@@ -54,7 +58,9 @@ class EmissionModel(MODEL):
         self.id = id
         self.queueKey = queueKey
         self.subscriptionKey = subscriptionKey
+        self.groupKey = groupKey
         self.messageKey = messageKey
+        self.originKey = originKey
         self.url = url
         self.tries = ConverterStatic.getValueOrDefault(tries, EmissionConstant.ZERO_TRIES)
         self.onErrorUrl = onErrorUrl
@@ -65,7 +71,7 @@ class EmissionModel(MODEL):
         self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
         self.setHistory(history)
         self.updateKey(key=key)
-        
+
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         ConverterStatic.overrideDateData(self)

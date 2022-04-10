@@ -9,6 +9,14 @@ from util import AuditoryUtil
 @Service()
 class QueueModelService:
 
+    @ServiceMethod()
+    def findAllByOrigin(self):
+        modelList = self.repository.queueModel.findAllByOriginKey(AuditoryUtil.getApiKeyIdentity(service=self))
+        return self.mapper.queueModel.fromModelListToResponseDtoList(
+            modelList
+        )
+
+
     @ServiceMethod(requestClass=[QueueDto.QueueRequestDto])
     def createOrUpdate(self, dto):
         self.validator.queueModel.validateRequestDto(dto)

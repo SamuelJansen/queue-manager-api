@@ -26,6 +26,11 @@ class QueueModelRepository:
         self.repository.session.commit()
         return modelList
 
+    def findAllByOriginKey(self, originKey):
+        modelList = self.repository.session.query(self.model).filter(self.model.originKey == originKey).all()
+        self.repository.session.commit()
+        return modelList
+
     def existsByKey(self, key) :
         return self.repository.existsByKeyAndCommit(key, self.model)
 

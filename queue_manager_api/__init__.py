@@ -3,6 +3,7 @@ from queue_manager_api.api.src.library.annotation import MessageListenerAnnotati
 
 from queue_manager_api.api.src.library.constant import HttpEmitterConstant
 from queue_manager_api.api.src.library.constant import SubscriptionConstant
+from queue_manager_api.api.src.library.constant import MessageConstant
 
 from queue_manager_api.api.src.library.dto import QueueDto
 from queue_manager_api.api.src.library.dto import SubscriptionDto

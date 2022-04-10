@@ -3,8 +3,10 @@ from globals import getGlobalsInstance
 globalsInstance = getGlobalsInstance()
 
 
+MESSAGE_API_KEY = globalsInstance.getSetting('queue.message.api-key')
+
+LISTENER_TIMEOUT = globalsInstance.getSetting('queue.message.listener.timeout')
+
 EMITTER_URL = globalsInstance.getSetting('queue.message.emitter.url')
 EMITTER_TIMEOUT = globalsInstance.getSetting('queue.message.emitter.timeout')
-
-LISTENER_URL = globalsInstance.getSetting('queue.message.listener.url')
-LISTENER_TIMEOUT = globalsInstance.getSetting('queue.message.listener.timeout')
+EMITTER_MESSAGE_QUEUE_KEY = globalsInstance.getSetting('queue.message.emitter.queue-key.test-1')

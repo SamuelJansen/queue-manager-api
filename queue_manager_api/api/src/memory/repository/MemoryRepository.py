@@ -1,3 +1,5 @@
+import functools
+import operator
 from python_helper import ObjectHelper
 from python_framework import Repository
 
@@ -11,7 +13,7 @@ EMISSION_MODEL = 'emission'
 @Repository()
 class MemoryRepository:
 
-    messageDictionary = {}
+    data = {}
 
 
     def existsMessageByQueueKeyAndMessageKey(self, queueKey, messageKey):
@@ -27,78 +29,26 @@ class MemoryRepository:
         ]
 
 
-
-
-
-
-
-
-
-
-    def getEmissionList(self, queueKey, messageKey):
-        return self.getEmissionQueue(queueKey).get(messageKey, [])
-
-
-    def findAllEmissionsByStateIn(self, stateList):
-        return [
-            emission
-            for queueKey in self.getQueueKeyIterator()
-            for messageKey in self.getEmissionMessageKeyIterator(queueKey)
-            for emission in self.getEmissionList(queueKey, messageKey)
-            if self.emissionStateIn(emission, stateList)
-        ]
-
-
-    def findAllEmissionsByStatusInFromOneQueue(self, statusList):
-        queueKeyList = self.getQueueKeyIterator()
-        if ObjectHelper.isEmpty(queueKeyList):
-            return []
-        for queueKey in queueKeyList:
-            modelList = [
-                emission
-                for messageKey in self.getMessageKeyIterator(queueKey)
-                for emission in self.getEmissionList(queueKey, messageKey)
-                if self.emissionStatusIn(emission, statusList)
-            ]
-            if 0 < len(modelList):
-                return modelList
-        return []
-
-
-    def emissionStatusIn(self, emission, statusList):
-        return ObjectHelper.isNotNone(emission) and emission.status in statusList
-        # return ObjectHelper.isNotNone(emission) and emission.status in statusList and self.emissionStateIn(
-        #     emission,
-        #     [
-        #         ModelState.MODIFIED,
-        #         ModelState.INSTANTIATED
-        #     ]
-        # )
-
-
-    def emissionStateIn(self, emission, stateList):
-        return ObjectHelper.isNotNone(emission) and emission.state in stateList
-
-
-
-
-
-
-
-
-
-
-
-
     def removeAllMessagesByStateIn(self, stateList):
-        modelList = [
+        messageList = [
             self.popMessage(queueKey, messageKey)
             for queueKey in self.getQueueKeyIterator()
             for messageKey in self.getMessageKeyIterator(queueKey)
             if self.messageStateIn(queueKey, messageKey, stateList)
         ]
         self.removeEmptyQueues()
-        return modelList
+        return messageList
+
+
+    def removeAllMessagesByStateInAndSatusIn(self, stateList, statusList):
+        messageList = [
+            self.popMessage(queueKey, messageKey)
+            for queueKey in self.getQueueKeyIterator()
+            for messageKey in self.getMessageKeyIterator(queueKey)
+            if self.messageStateIn(queueKey, messageKey, stateList) and self.messageStatusIn(queueKey, messageKey, statusList)
+        ]
+        self.removeEmptyQueues()
+        return messageList
 
 
     def findAllMessagesByStatusIn(self, statusList):
@@ -111,14 +61,14 @@ class MemoryRepository:
 
 
     def removeAllMessageByStatusIn(self, statusList):
-        modelList = [
+        messageList = [
             self.popMessage(queueKey, messageKey)
             for queueKey in self.getQueueKeyIterator()
             for messageKey in self.getMessageKeyIterator(queueKey)
             if self.messageStatusIn(queueKey, messageKey, statusList)
         ]
         self.removeEmptyQueues()
-        return modelList
+        return messageList
 
 
     def findAllMessagesByStatusInFromOneQueue(self, statusList):
@@ -126,20 +76,14 @@ class MemoryRepository:
         if ObjectHelper.isEmpty(queueKeyList):
             return []
         for queueKey in queueKeyList:
-            modelList = [
+            messageList = [
                 self.getMessage(queueKey, messageKey)
                 for messageKey in self.getMessageKeyIterator(queueKeyList[0])
                 if self.messageStatusIn(queueKey, messageKey, statusList)
             ]
-            if 0 < len(modelList):
-                return modelList
+            if 0 < len(messageList):
+                return messageList
         return []
-
-
-    def removeEmptyQueues(self):
-        for queueKey in self.getQueueKeyIterator():
-            if ObjectHelper.isEmpty(self.getMessageQueue(queueKey)) and ObjectHelper.isEmpty(self.getEmissionQueue(queueKey)):
-                ObjectHelper.deleteDictionaryEntry(queueKey)
 
 
     def getMessageKeyIterator(self, queueKey):
@@ -166,45 +110,114 @@ class MemoryRepository:
         return self.getQueue(queueKey).get(EMISSION_MODEL, {})
 
 
+    def getEmissionList(self, queueKey, messageKey):
+        return self.getEmissionQueue(queueKey).get(messageKey, [])
+
+
+    def findAllEmissionsByStateIn(self, stateList):
+        return [
+            emission
+            for queueKey in self.getQueueKeyIterator()
+            for messageKey in self.getEmissionMessageKeyIterator(queueKey)
+            for emission in self.getEmissionList(queueKey, messageKey)
+            if self.emissionStateIn(emission, stateList)
+        ]
+
+
+    def findAllEmissionsByStatusInFromOneQueue(self, statusList):
+        queueKeyList = self.getQueueKeyIterator()
+        if ObjectHelper.isEmpty(queueKeyList):
+            return []
+        for queueKey in queueKeyList:
+            emissionList = [
+                emission
+                for messageKey in self.getMessageKeyIterator(queueKey)
+                for emission in self.getEmissionList(queueKey, messageKey)
+                if self.emissionStatusIn(emission, statusList)
+            ]
+            if 0 < len(emissionList):
+                return emissionList
+        return []
+
+
+    def removeAllEmissionsByStateInAndSatusIn(self, stateList, statusList):
+        emissionList = [
+            self.popEmission(emission)
+            for queueKey in self.getQueueKeyIterator()
+            for messageKey in self.getEmissionMessageKeyIterator(queueKey)
+            for emission in self.getEmissionList(queueKey, messageKey)
+            if self.emissionStateIn(emission, stateList) and self.emissionStatusIn(emission, statusList)
+        ]
+        self.removeEmptyQueues()
+        return emissionList
+        # return functools.reduce(operator.iconcat, emissionListCollection, [])
+
+
+    def removeEmptyQueues(self):
+        for queueKey in self.getQueueKeyIterator():
+            if ObjectHelper.isEmpty(self.getMessageQueue(queueKey)) and ObjectHelper.isEmpty(self.getEmissionQueue(queueKey)):
+                ObjectHelper.deleteDictionaryEntry(queueKey, self.data)
+
+
+    def emissionStatusIn(self, emission, statusList):
+        return ObjectHelper.isNotNone(emission) and emission.status in statusList
+
+
+    def emissionStateIn(self, emission, stateList):
+        return ObjectHelper.isNotNone(emission) and emission.state in stateList
+
+
+    def popEmission(self, emission):
+        emissionList = self.getEmissionQueue(emission.queueKey).get(emission.getMessageKey())
+        emissionIndex = [
+            i
+            for i, e in enumerate(emissionList)
+            if e == emission
+        ]
+        if ObjectHelper.isEmpty(emissionIndex):
+            raise Exception(f'Emission {emission} not found')
+        if 1 == len(emissionList):
+            self.getEmissionQueue(emission.queueKey).pop(emission.getMessageKey())
+        else:
+            self.getEmissionQueue(emission.queueKey).get(emission.getMessageKey()).pop(emissionIndex[0])
+        return emission
+
+
     def messageStateIn(self, queueKey, messageKey, stateList):
         return ObjectHelper.isNotNone(self.getMessage(queueKey, messageKey)) and self.getMessage(queueKey, messageKey).state in stateList
 
 
     def messageStatusIn(self, queueKey, messageKey, statusList):
         return ObjectHelper.isNotNone(self.getMessage(queueKey, messageKey)) and self.getMessage(queueKey, messageKey).status in statusList
-        # return ObjectHelper.isNotNone(self.getMessage(queueKey, messageKey)) and self.getMessage(queueKey, messageKey).status in statusList and self.messageStateIn(
-        #     queueKey,
-        #     messageKey,
-        #     [
-        #         ModelState.MODIFIED,
-        #         ModelState.INSTANTIATED
-        #     ]
-        # )
 
 
     def acceptMessage(self, message):
         self.addQueueKeyIfNeeded(message.queueKey)
-        self.messageDictionary[message.queueKey][MESSAGE_MODEL][message.key] = message
+        self.data[message.queueKey][MESSAGE_MODEL][message.key] = message
 
 
     def acceptEmissionList(self, emissionList, queue):
         if ObjectHelper.isNotEmpty(emissionList):
             message = emissionList[0].message
             self.addQueueKeyIfNeeded(queue.key)
-            self.messageDictionary[queue.key][EMISSION_MODEL][message.key] = emissionList
+            self.data[queue.key][EMISSION_MODEL][message.key] = emissionList
 
 
     def addQueueKeyIfNeeded(self, queueKey):
-        if queueKey not in self.messageDictionary:
-            self.messageDictionary[queueKey] = {
+        if queueKey not in self.data:
+            self.data[queueKey] = {
                 MESSAGE_MODEL: {},
                 EMISSION_MODEL: {}
             }
 
 
     def getQueueKeyIterator(self):
-        return [*{**self.messageDictionary}.keys()]
+        return [*{**self.data}.keys()]
 
 
     def getQueue(self, queueKey):
-        return self.messageDictionary.get(queueKey, {})
+        return self.data.get(queueKey, {})
+
+
+    def findAll(self):
+        return {**self.data}

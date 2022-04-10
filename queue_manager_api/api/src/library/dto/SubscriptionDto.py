@@ -1,6 +1,9 @@
 from python_framework import ConverterStatic
 
-from queue_manager_api.api.src.library.constant import SubscriptionConstant
+try:
+    from queue_manager_api.api.src.library.constant import SubscriptionConstant
+except:
+    import SubscriptionConstant
 
 
 class SubscriptionRequestDto:

@@ -42,12 +42,25 @@ class Emission:
         self.message = message
 
 
-    def getMessageKey(self, message=None):
-        if ObjectHelper.isNone(message):
-            return None if ObjectHelper.isNone(self.message) else self.message.key
-        else:
+    def getMessage(self, message=None):
+        if ObjectHelper.isNotNone(message):
             self.setMessage(message)
-            return self.getMessageKey()
+        return self.message
+
+
+    def getMessageKey(self, message=None):
+        self.getMessage(message=message)
+        return None if ObjectHelper.isNone(self.message) else self.message.key
+
+
+    def getGroupKey(self, message=None):
+        self.getMessage(message=message)
+        return None if ObjectHelper.isNone(self.message) else self.message.groupKey
+
+
+    def getOriginKey(self, message=None):
+        self.getMessage(message=message)
+        return None if ObjectHelper.isNone(self.message) else self.message.originKey
 
 
     def getContent(self):
@@ -72,4 +85,4 @@ class Emission:
 
 
     def __repr__(self):
-        return f'{self.__memoryname__}(queueKey={self.queueKey}, subscriptionKey={self.subscriptionKey}, messageKey={self.getMessageKey()}, tries={self.tries}, onErrorTries={self.onErrorTries}, maxTries={self.maxTries}, backOff={self.backOff}, status={self.status}, state={self.state})'
+        return f'{self.__memoryname__}(queueKey={self.queueKey}, subscriptionKey={self.subscriptionKey}, messageKey={self.getMessageKey()}, groupKey={self.getGroupKey()}, originKey={self.getOriginKey()}, tries={self.tries}, onErrorTries={self.onErrorTries}, maxTries={self.maxTries}, backOff={self.backOff}, status={self.status}, state={self.state})'

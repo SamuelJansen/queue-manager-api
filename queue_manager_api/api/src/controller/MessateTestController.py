@@ -4,8 +4,9 @@ from enumeration.AccessDomain import AccessDomain
 import MessageDto
 
 
-@Controller(url = '/message-test', tag='QueueTest', description='Queue test controller')
+@Controller(url = '/test/message', tag='QueueTest', description='Queue test controller')
 class MessateTestController:
+
 
     @ControllerMethod(url = '/',
         apiKeyRequired = [AccessDomain.API],
@@ -18,11 +19,11 @@ class MessateTestController:
         return ConverterStatic.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
 
 
-@Controller(url = '/message-error-test', tag='QueueTest', description='Queue test controller')
+@Controller(url = '/test/message-error', tag='QueueTest', description='Queue test controller')
 class MessateTestBulkController:
 
     @ControllerMethod(url = '/',
-        apiKeyRequired= [AccessDomain.API],
+        # apiKeyRequired= [AccessDomain.API],
         requestClass = [MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageResponseDto]
         , logRequest = True

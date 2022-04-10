@@ -82,6 +82,7 @@ class EmissionService:
             messageRequestDto = MessageDto.MessageRequestDto(
                 key = model.getMessageKey(),
                 queueKey = model.queueKey,
+                groupKey = model.getGroupKey(),
                 content = model.getContent()
             )
             emissionResponse = None
@@ -102,6 +103,7 @@ class EmissionService:
             ) or (
                 model.maxTries > model.onErrorTries and ObjectHelper.isNeitherNoneNorBlank(model.onErrorUrl)
             ):
+                log.warning(self.send, f'Error while trying to emit queued message emission "{model}". Going for another attempt', exception=exception, muteStackTrace=True)
                 return self.send(model)
             else:
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.UNPROCESSED)

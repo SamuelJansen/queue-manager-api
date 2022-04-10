@@ -38,7 +38,9 @@ class EmissionModelMapper:
 
     @MapperMethod(requestClass=[EmissionModel.EmissionModel, Emission.Emission])
     def overrideMessageKey(self, toOverridemodel, emission):
-        toOverridemodel.messageKey = emission.message.key
+        toOverridemodel.messageKey = emission.getMessageKey()
+        toOverridemodel.groupKey = emission.getGroupKey()
+        toOverridemodel.originKey = emission.getOriginKey()
         toOverridemodel.updateKey()
         self.overrideModelStateToModified(toOverridemodel)
 

@@ -16,3 +16,16 @@ class QueueModelController:
     )
     def post(self, dto):
         return self.service.queueModel.createOrUpdate(dto), HttpStatus.CREATED
+
+
+@Controller(url = '/queue/all', tag='Queue', description='Queue controller')
+class QueueModelAllController:
+
+    @ControllerMethod(url = '/',
+        apiKeyRequired = [AccessDomain.API],
+        responseClass = [[QueueDto.QueueResponseDto]]
+        # , logRequest = True
+        # , logResponse = True
+    )
+    def get(self):
+        return self.service.queueModel.findAllByOrigin(), HttpStatus.OK

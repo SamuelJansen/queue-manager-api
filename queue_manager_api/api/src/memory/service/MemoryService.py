@@ -14,7 +14,7 @@ class MemoryService:
 
     @ServiceMethod()
     def findAll(self):
-        return self.repository.memory.messageDictionary
+        return self.repository.memory.findAll()
 
 
     @ServiceMethod(requestClass=[Message.Message])
@@ -78,10 +78,21 @@ class MemoryService:
 
 
     @ServiceMethod()
-    def removeAllProcessedMessages(self):
-        messageList = self.repository.memory.removeAllMessagesByStateIn([ModelState.PROCESSED])
-        if ObjectHelper.isEmpty(messageList):
-            return []
-        self.service.messageModel.createOrUpdateAll(messageList)
-        log.prettyPython(self.removeAllProcessedMessages, 'Messages removed from memory', messageList, logLevel=LOG_LEVEL)
-        return messageList
+    def removeAllProcessedMessagesAndEmissions(self):
+        FINAL_STATED = [
+            ModelState.PROCESSED,
+            ModelState.PERSISTED,
+        ]
+        FINAL_STATUS = [
+            ModelStatus.PROCESSED,
+            ModelStatus.PROCESSED_WITH_ERRORS,
+            ModelStatus.UNPROCESSED,
+        ]
+        messageList = self.repository.memory.removeAllMessagesByStateInAndSatusIn(FINAL_STATED, FINAL_STATUS)
+        if ObjectHelper.isNotEmpty(messageList):
+            self.service.messageModel.createOrUpdateAll(messageList)
+            log.prettyPython(self.removeAllProcessedMessagesAndEmissions, 'Messages removed from memory', messageList, logLevel=LOG_LEVEL)
+        emissionList = self.repository.memory.removeAllEmissionsByStateInAndSatusIn(FINAL_STATED, FINAL_STATUS)
+        if ObjectHelper.isNotEmpty(emissionList):
+            self.service.emissionModel.createOrUpdateAll(emissionList)
+            log.prettyPython(self.removeAllProcessedMessagesAndEmissions, 'Emissions removed from memory', emissionList, logLevel=LOG_LEVEL)

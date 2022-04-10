@@ -6,5 +6,5 @@ from python_framework import Scheduler, SchedulerMethod, WeekDay, WeekDayConstan
 class MemoryScheduler:
 
     @SchedulerMethod(SchedulerType.INTERVAL, seconds=15, instancesUpTo=2)
-    def removeAllProcessedMessages(self) :
-        self.service.memory.removeAllProcessedMessages()
+    def removeAllProcessedMessagesAndEmissions(self) :
+        self.service.memory.removeAllProcessedMessagesAndEmissions()

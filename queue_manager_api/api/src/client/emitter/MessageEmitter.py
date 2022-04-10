@@ -1,4 +1,4 @@
-from python_framework import Serializer, HttpStatus
+from python_framework import Serializer, HttpStatus, JwtConstant
 from MessageEmitterAnnotation import MessageEmitter
 from MessageEmitterAnnotation import MessageEmitterMethod
 
@@ -8,19 +8,24 @@ import Message
 
 
 @MessageEmitter(
-    muteLogs = False,
-    logRequest = True,
-    logResponse = True,
+    url = MessageConfig.EMITTER_URL,
     timeout = MessageConfig.EMITTER_TIMEOUT,
-    headers = {'Content-Type': 'application/json'}
+    headers = {
+        'Content-Type': 'application/json',
+        JwtConstant.DEFAULT_JWT_API_KEY_HEADER_NAME: f'Bearer {MessageConfig.MESSAGE_API_KEY}'
+    }
+    , muteLogs = False
+    , logRequest = True
+    , logResponse = True
 )
 class MessageEmitter:
 
     @MessageEmitterMethod(
-        logRequest = True,
-        logResponse = True,
-        requestClass=[MessageDto.MessageRequestDto, str],
+        queueKey = MessageConfig.EMITTER_MESSAGE_QUEUE_KEY,
+        requestClass=[MessageDto.MessageRequestDto],
         responseClass=[MessageDto.MessageRequestDto]
+        , logRequest = True
+        , logResponse = True
     )
-    def send(self, dto, destinyUri):
-        return self.emit(additionalUrl=destinyUri, body=Serializer.getObjectAsDictionary(dto))
+    def send(self, dto):
+        return self.emit(body=dto)

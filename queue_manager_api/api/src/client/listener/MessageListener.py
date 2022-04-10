@@ -9,7 +9,6 @@ import Message
 
 
 @MessageListener(
-    url = '/api/queue/subscription/message/listener',
     timeout = MessageConfig.LISTENER_TIMEOUT
     , logRequest = True
     , logResponse = True
@@ -17,8 +16,11 @@ import Message
 )
 class MessageListener:
 
-    @MessageListenerMethod(requestClass=[MessageDto.MessageRequestDto])
+    @MessageListenerMethod(url = '/test/listener/message',
+        requestClass=[MessageDto.MessageRequestDto],
+        responseClass=[MessageDto.MessageCreationRequestDto]
+        , logRequest = True
+        , logResponse = True
+    )
     def accept(self, dto):
-        self.service.message.globals.api.resource.emitter.message.send(dto, 'https://some-url')
-        responseDto = self.service.message.acceptWithoutValidation(dto)
-        return responseDto, HttpStatus.ACCEPTED
+        return self.service.message.globals.api.resource.emitter.message.send(dto), HttpStatus.ACCEPTED
