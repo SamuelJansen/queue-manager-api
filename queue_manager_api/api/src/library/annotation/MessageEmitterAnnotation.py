@@ -256,9 +256,10 @@ def MessageEmitterMethod(
                 args,
                 kwargs,
                 wrapperManager,
-                requestClass,
                 requestHeaderClass,
                 requestParamClass,
+                requestClass,
+                responseClass,
                 httpClientResolversMap,
                 messageCreationRequest.groupKey,
                 messageCreationRequest.key
@@ -290,9 +291,10 @@ def resolveClientCall(
     args,
     kwargs,
     wrapperManager,
-    requestClass,
     requestHeaderClass,
     requestParamClass,
+    requestClass,
+    responseClass,
     httpClientResolversMap,
     resourceMethodGroupKey,
     resourceMethodMessageKey

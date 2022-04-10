@@ -19,7 +19,7 @@ def safellyGetCurrentSession(apiInstance=None, service=None):
     try:
         currentSession = SessionManager.getCurrentSession(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
-        log.error(safellyGetCurrentSession, f'Not possible to get current session. Returning "{currentSession}" by default', exception=exception)
+        log.debug(safellyGetCurrentSession, f'Not possible to get current session. Returning "{currentSession}" by default', exception=exception, muteStackTrace=True)
     return ConverterStatic.getValueOrDefault(currentSession, {})
 
 
@@ -42,7 +42,7 @@ def safellyGetCurrentApiKey(apiInstance=None, service=None):
     try:
         currentApiKey = ApiKeyManager.getCurrentApiKey(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
-        log.error(safellyGetCurrentApiKey, f'Not possible to get current api key. Returning "{currentApiKey}" by default', exception=exception)
+        log.debug(safellyGetCurrentApiKey, f'Not possible to get current api key. Returning "{currentApiKey}" by default', exception=exception, muteStackTrace=True)
     return ConverterStatic.getValueOrDefault(currentApiKey, {})
 
 
@@ -65,7 +65,7 @@ def safellyGetCurrentAthentication(apiInstance=None, service=None):
     try:
         currentAthentication = SecurityManager.getCurrentUser(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
-        log.error(safellyGetCurrentAthentication, f'Not possible to get current user. Returning "{currentAthentication}" by default', exception=exception)
+        log.debug(safellyGetCurrentAthentication, f'Not possible to get current user. Returning "{currentAthentication}" by default', exception=exception, muteStackTrace=True)
     return ConverterStatic.getValueOrDefault(currentAthentication, {})
 
 
