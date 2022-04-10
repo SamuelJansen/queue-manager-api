@@ -262,6 +262,8 @@ def MessageEmitterMethod(
                 responseClass,
                 produces,
                 httpClientResolversMap,
+                returnOnlyBody,
+                debugIt,
                 messageCreationRequest.groupKey,
                 messageCreationRequest.key
             )
@@ -298,6 +300,8 @@ def resolveClientCall(
     responseClass,
     produces,
     httpClientResolversMap,
+    returnOnlyBody,
+    debugIt,
     resourceMethodGroupKey,
     resourceMethodMessageKey
 ):
