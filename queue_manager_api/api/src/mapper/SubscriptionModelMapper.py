@@ -8,8 +8,9 @@ import SubscriptionDto
 @Mapper()
 class SubscriptionModelMapper:
 
-    @MapperMethod(requestClass=[[SubscriptionDto.SubscriptionRequestDto]], responseClass=[[SubscriptionModel.SubscriptionModel]])
+    @MapperMethod(requestClass=[[SubscriptionDto.SubscriptionRequestDto], str], responseClass=[[SubscriptionModel.SubscriptionModel]])
     def fromRequestDtoListToModelList(self, dtoList, modelList):
+        self.overrideAllModelOriginKey(originKey, modelList)
         return modelList
 
 
@@ -18,8 +19,9 @@ class SubscriptionModelMapper:
         return dtoList
 
 
-    @MapperMethod(requestClass=[SubscriptionDto.SubscriptionRequestDto], responseClass=[SubscriptionModel.SubscriptionModel])
-    def fromRequestDtoToModel(self, dto, model):
+    @MapperMethod(requestClass=[SubscriptionDto.SubscriptionRequestDto, str], responseClass=[SubscriptionModel.SubscriptionModel])
+    def fromRequestDtoToModel(self, dto, originKey, model):
+        self.overrideModelOriginKey(originKey, model)
         return model
 
 

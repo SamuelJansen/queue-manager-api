@@ -41,7 +41,7 @@ class QueueModelMapper:
                     subscriptionDto
                 )
             else:
-                model.subscriptionList.append(self.mapper.subscriptionModel.fromRequestDtoToModel(subscriptionDto))
+                model.subscriptionList.append(self.mapper.subscriptionModel.fromRequestDtoToModel(subscriptionDto, model.originKey))
 
 
     @MapperMethod(requestClass=[str, QueueModel.QueueModel])
