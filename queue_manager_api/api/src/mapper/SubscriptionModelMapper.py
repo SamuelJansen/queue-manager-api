@@ -10,8 +10,6 @@ class SubscriptionModelMapper:
 
     @MapperMethod(requestClass=[[SubscriptionDto.SubscriptionRequestDto]], responseClass=[[SubscriptionModel.SubscriptionModel]])
     def fromRequestDtoListToModelList(self, dtoList, modelList):
-        for model in modelList:
-            self.overrideModelOriginKey(originKey, model)
         return modelList
 
 
@@ -22,7 +20,6 @@ class SubscriptionModelMapper:
 
     @MapperMethod(requestClass=[SubscriptionDto.SubscriptionRequestDto], responseClass=[SubscriptionModel.SubscriptionModel])
     def fromRequestDtoToModel(self, dto, model):
-        self.overrideModelOriginKey(originKey, model)
         return model
 
 
@@ -41,7 +38,7 @@ class SubscriptionModelMapper:
 
     @MapperMethod(requestClass=[str, SubscriptionModel.SubscriptionModel])
     def overrideModelOriginKey(self, originKey, model):
-        model.originKey = originKey
+        model.originKey = ConverterStatic.getValueOrDefault(originKey, model.originKey)
 
 
     @MapperMethod(requestClass=[str, [SubscriptionModel.SubscriptionModel]])

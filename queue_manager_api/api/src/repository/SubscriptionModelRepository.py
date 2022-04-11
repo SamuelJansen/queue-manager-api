@@ -57,3 +57,8 @@ class SubscriptionModelRepository:
 
     def deleteById(self, id):
         self.repository.deleteByIdAndCommit(id, self.model)
+
+    def findAllByOriginKey(self, originKey):
+        modelList = self.repository.session.query(self.model).filter(self.model.originKey == originKey).all()
+        self.repository.session.commit()
+        return modelList

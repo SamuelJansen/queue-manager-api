@@ -1,9 +1,24 @@
 from python_helper import ObjectHelper
-from python_framework import Service, ServiceMethod
+from python_framework import Service, ServiceMethod, GlobalException
+
+from util import AuditoryUtil
+import SubscriptionDto
 
 
 @Service()
 class SubscriptionModelService:
+
+    @ServiceMethod()
+    def findAllByOrigin(self):
+        return self.mapper.subscriptionModel.fromModelListToResponseDtoList(
+            self.repository.subscriptionModel.findAllByOriginKey(AuditoryUtil.getApiKeyIdentity(service=self))
+        )
+
+
+    @ServiceMethod(requestClass=[SubscriptionDto.SubscriptionRequestDto])
+    def createOrUpdate(self, dto):
+        raise GlobalException(message='Method not implemented', status=HttpStatus.I_M_A_TEAPOT)
+
 
     @ServiceMethod(requestClass=[str])
     def findAllModelByQueueKey(self, queueKey):
