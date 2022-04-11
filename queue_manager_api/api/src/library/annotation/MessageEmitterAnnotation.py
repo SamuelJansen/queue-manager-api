@@ -206,7 +206,7 @@ def MessageEmitterMethod(
                     )
                 ),
                 timeout,
-                logRequest and resourceMethodConfig.wrapperManager.logRequest
+                logRequest and resourceMethodConfig.wrapperManager.shouldLogRequest()
             )
             doLogRequest(verb, url, body, params, headers, logRequest, kwargs)
             emitterMethodResponse = requests.post(
