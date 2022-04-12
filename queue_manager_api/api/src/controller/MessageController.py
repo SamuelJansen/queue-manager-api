@@ -9,11 +9,10 @@ class MessageController:
 
     @ControllerMethod(url = '/',
         apiKeyRequired = [AccessDomain.API, AccessDomain.USER],
-        requestClass = [MessageDto.MessageRequestDto]
-        # responseClass = [MessageDto.MessageResponseDto]
-        # responseClass = [MessageDto.MessageRequestDto]
-        # , logRequest = True
-        # , logResponse = True
+        requestClass = [MessageDto.MessageRequestDto],
+        responseClass = [MessageDto.MessageCreationResponseDto]
+        , logRequest = True
+        , logResponse = True
     )
     def post(self, dto):
         return self.service.message.acceptWithoutValidation(dto), HttpStatus.ACCEPTED

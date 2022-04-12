@@ -11,8 +11,9 @@ class EmissionModelValidator:
     def validateRequestDto(self, dto):
         if ObjectHelper.isNone(dto) or ObjectHelper.isNone(dto.key):
             raise GlobalException(
-                logEmission = f'Emission key cannot be None. Emission dto: {dto}',
-                status = HttpStatus.INTERNAL_SERVER_ERROR
+                message = f'Emission key cannot be None',
+                logMessage = f'Subscription: {dto}',
+                status = HttpStatus.BAD_REQUEST
             )
 
 
@@ -26,7 +27,7 @@ class EmissionModelValidator:
     def validateDoesNotExistsByKey(self, key):
         if ObjectHelper.isNone(key) or self.service.emissionModel.existsByKey(key):
             raise GlobalException(
-                emission = 'Emission aleady exists',
-                logEmission = f'Emission {key} aleady exists',
+                message = 'Emission aleady exists',
+                logMessage = f'Emission {key} aleady exists',
                 status = HttpStatus.BAD_REQUEST
             )

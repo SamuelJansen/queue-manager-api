@@ -194,6 +194,7 @@ class MemoryRepository:
     def acceptMessage(self, message):
         self.addQueueKeyIfNeeded(message.queueKey)
         self.data[message.queueKey][MESSAGE_MODEL][message.key] = message
+        return message
 
 
     def acceptEmissionList(self, emissionList, queue):

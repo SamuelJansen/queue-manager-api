@@ -1,6 +1,6 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper, StringHelper
-from python_framework import Mapper, MapperMethod, EnumItem
+from python_framework import Mapper, MapperMethod, EnumItem, ConverterStatic
 
 import EmissionModel
 import Emission
@@ -67,6 +67,7 @@ class EmissionModelMapper:
     def overrideAllModelState(self, modelList, state):
         for model in modelList:
             self.overrideModelState(model, state)
+            ConverterStatic.overrideDateData(model)
 
 
     @MapperMethod(requestClass=[EmissionModel.EmissionModel, EnumItem])

@@ -11,8 +11,9 @@ class MessageModelValidator:
     def validateRequestDto(self, dto):
         if ObjectHelper.isNone(dto) or ObjectHelper.isNone(dto.key):
             raise GlobalException(
-                logMessage = f'Message key cannot be None. Message dto: {dto}',
-                status = HttpStatus.INTERNAL_SERVER_ERROR
+                message = f'Message key cannot be None',
+                logMessage = f'Subscription: {dto}',
+                status = HttpStatus.BAD_REQUEST
             )
 
 

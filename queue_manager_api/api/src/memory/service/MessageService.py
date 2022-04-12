@@ -20,7 +20,7 @@ class MessageService:
         model = self.mapper.message.fromRequestDtoToModel(dto, AuditoryUtil.getApiKeyIdentity(service=self))
         self.mapper.message.overrideModelStatus(model, ModelStatus.ACCEPTED)
         log.prettyPython(self.acceptWithoutValidation, f'Accepting new queued message', model, logLevel=LOG_LEVEL)
-        return self.service.memory.acceptMessage(model)
+        return self.mapper.message.fromModelToCreationResponseDto(self.service.memory.acceptMessage(model))
 
 
     @ServiceMethod()

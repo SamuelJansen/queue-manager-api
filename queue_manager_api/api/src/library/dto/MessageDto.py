@@ -34,3 +34,13 @@ class MessageCreationRequestDto:
         self.key = key
         self.queueKey = queueKey
         self.groupKey = groupKey
+
+class MessageCreationResponseDto:
+    def __init__(self,
+        key = None,
+        queueKey = None,
+        groupKey = None
+    ):
+        self.key = key
+        self.queueKey = queueKey
+        self.groupKey = groupKey

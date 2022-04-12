@@ -18,9 +18,13 @@ from python_framework import (
 
 try:
     from queue_manager_api.api.src.library.util import AnnotationUtil
+    from queue_manager_api.api.src.library.util import ThreadUtil
+    from queue_manager_api.api.src.library.constant import MessageConstant
     from queue_manager_api.api.src.library.dto import MessageDto
 except:
-    import AnnotationUtil, MessageDto
+    import AnnotationUtil, ThreadUtil
+    import MessageConstant
+    import MessageDto
 
 
 DEFAULT_TIMEOUT = 2
@@ -70,6 +74,7 @@ def MessageListener(
                     resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_LISTENER_MUTE_LOGS,
                     resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
                 )
+                self.threadManager = ThreadUtil.ThreadManager(threadTimeout=self.timeout)
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
         return InnerClass
     return Wrapper
@@ -111,11 +116,25 @@ def MessageListenerMethod(
             resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
         )
         resourceInstanceMethodMuteStacktraceOnBusinessRuleException = muteStacktraceOnBusinessRuleException
-        @wrapperManager.api.app.route(f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}', methods=['POST'], endpoint=f'{resourceInstanceMethod.__qualname__}')
+        listenerUrl = f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}'
+        if listenerUrl.endswith(c.SLASH):
+            listenerUrl = listenerUrl[:-1]
+        @wrapperManager.api.app.route(listenerUrl, methods=['POST'], endpoint=f'{resourceInstanceMethod.__qualname__}')
         def innerResourceInstanceMethod(*args, **kwargs):
             args = wrapperManager.addResourceInFrontOfArgs(args)
             messageAsJson = FlaskUtil.safellyGetRequestBody()
-            if ObjectHelper.isEmpty(messageAsJson):
+            if not wrapperManager.muteLogs:
+                log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{FlaskUtil.safellyGetVerb()}{c.SPACE_DASH_SPACE}{FlaskUtil.safellyGetUrl()}''')
+
+            if not wrapperManager.enabled:
+                completeResponse = FlaskManager.getCompleteResponseByException(
+                    GlobalException(logMessage='This resource is temporarily disabled', status=HttpStatus.SERVICE_UNAVAILABLE),
+                    wrapperManager.resourceInstance,
+                    wrapperManager.resourceInstanceMethod,
+                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+                    context = HttpDomain.LISTENER_CONTEXT
+                )
+            elif ObjectHelper.isEmpty(messageAsJson):
                 completeResponse = FlaskManager.getCompleteResponseByException(
                     GlobalException(message='Content cannot be empty', logResponse=f'Content: {messageContent}', status=HttpStatus.BAD_REQUEST),
                     wrapperManager.resourceInstance,
@@ -123,68 +142,36 @@ def MessageListenerMethod(
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
                     context = HttpDomain.LISTENER_CONTEXT
                 )
-                httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
             else:
-                completeResponse = None
-                if not wrapperManager.muteLogs:
-                    log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{FlaskUtil.safellyGetVerb()}{c.SPACE_DASH_SPACE}{FlaskUtil.safellyGetUrl()}''')
+                completeResponse = [
+                    MessageDto.MessageCreationRequestDto(
+                        key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
+                        queueKey = messageAsJson.get(MessageConstant.MESSAGE_QUEUE_KEY_KEY),
+                        groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
+                    ),
+                    {},
+                    HttpStatus.ACCEPTED,
+                    produces
+                ]
+                wrapperManager.resourceInstance.threadManager.runInAThread(
+                    resolveControllerCall,
+                    args,
+                    kwargs,
+                    wrapperManager,
+                    requestHeaderClass,
+                    requestParamClass,
+                    requestClass,
+                    consumes,
+                    produces,
+                    defaultResponseHeaders,
+                    logRequest,
+                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+                    requestBody = messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY)
+                )
 
-                if wrapperManager.enabled:
-                    try:
-                        completeResponse = FlaskManager.handleControllerMethod(
-                            args,
-                            kwargs,
-                            consumes,
-                            wrapperManager.resourceInstance,
-                            wrapperManager.resourceInstanceMethod,
-                            requestHeaderClass,
-                            requestParamClass,
-                            requestClass,
-                            logRequest,
-                            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                            requestBody = messageAsJson.get('content'),
-                            verb = HttpDomain.Verb.POST,
-                            logRequestMessage = LogConstant.LISTENER_REQUEST
-                        )
-                        FlaskManager.validateCompleteResponse(responseClass, completeResponse)
-                    except Exception as exception:
-                        completeResponse = FlaskManager.getCompleteResponseByException(
-                            exception,
-                            wrapperManager.resourceInstance,
-                            wrapperManager.resourceInstanceMethod,
-                            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                            context = HttpDomain.LISTENER_CONTEXT
-                        )
-                else:
-                    completeResponse = FlaskManager.getCompleteResponseByException(
-                        GlobalException(logMessage='This resource is temporarily disabled', status=HttpStatus.SERVICE_UNAVAILABLE),
-                        wrapperManager.resourceInstance,
-                        wrapperManager.resourceInstanceMethod,
-                        resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                        context = HttpDomain.LISTENER_CONTEXT
-                    )
-
+            httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
+            if wrapperManager.shouldLogResponse():
                 try:
-                    status = HttpStatus.map(completeResponse[-1])
-                    additionalResponseHeaders = completeResponse[1]
-                    if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
-                        additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
-                    if ObjectHelper.isNotNone(responseHeaders):
-                        additionalResponseHeaders = {**responseHeaders, **additionalResponseHeaders}
-                    responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
-                    httpResponse = FlaskUtil.buildHttpResponse(additionalResponseHeaders, responseBody, status.enumValue, produces)
-                except Exception as exception:
-                    log.failure(innerResourceInstanceMethod, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
-                    completeResponse = getCompleteResponseByException(
-                        Exception('Not possible to handle complete response'),
-                        wrapperManager.resourceInstance,
-                        wrapperManager.resourceInstanceMethod,
-                        resourceInstanceMethodMuteStacktraceOnBusinessRuleException
-                    )
-                    httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
-
-            try:
-                if wrapperManager.shouldLogResponse():
                     log.prettyJson(
                         wrapperManager.resourceInstanceMethod,
                         LogConstant.LISTENER_RESPONSE,
@@ -196,8 +183,8 @@ def MessageListenerMethod(
                         condition = True,
                         logLevel = log.INFO
                     )
-            except Exception as exception:
-                log.failure(innerResourceInstanceMethod, 'Not possible to log response properly', exception)
+                except Exception as exception:
+                    log.failure(innerResourceInstanceMethod, 'Not possible to log response properly', exception)
 
             return httpResponse
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
@@ -217,3 +204,70 @@ def MessageListenerMethod(
         innerResourceInstanceMethod.muteStacktraceOnBusinessRuleException = resourceInstanceMethodMuteStacktraceOnBusinessRuleException
         return innerResourceInstanceMethod
     return innerMethodWrapper
+
+
+
+
+def resolveControllerCall(
+    args,
+    kwargs,
+    wrapperManager,
+    requestHeaderClass,
+    requestParamClass,
+    requestClass,
+    consumes,
+    produces,
+    defaultResponseHeaders,
+    logRequest,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+    requestBody = {},
+    verb = HttpDomain.Verb.POST,
+    logRequestMessage = LogConstant.LISTENER_REQUEST,
+    context = HttpDomain.LISTENER_CONTEXT
+
+) :
+    completeResponse = None
+    try:
+        completeResponse = FlaskManager.handleControllerMethod(
+            args,
+            kwargs,
+            consumes,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            requestHeaderClass,
+            requestParamClass,
+            requestClass,
+            logRequest,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            requestBody = requestBody,
+            verb = verb,
+            logRequestMessage = logRequestMessage
+        )
+        FlaskManager.validateCompleteResponse(responseClass, completeResponse)
+    except Exception as exception:
+        completeResponse = FlaskManager.getCompleteResponseByException(
+            exception,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            context = context
+        )
+    try:
+        status = HttpStatus.map(completeResponse[-1])
+        additionalResponseHeaders = completeResponse[1]
+        if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
+            additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
+        if ObjectHelper.isNotNone(defaultResponseHeaders):
+            additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
+        responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
+        httpResponse = FlaskUtil.buildHttpResponse(additionalResponseHeaders, responseBody, status.enumValue, produces)
+    except Exception as exception:
+        log.failure(innerResourceInstanceMethod, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
+        completeResponse = getCompleteResponseByException(
+            Exception(f'Not possible to handle complete response. Cause: {str(exception)}'),
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+        )
+        httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
+    return httpResponse

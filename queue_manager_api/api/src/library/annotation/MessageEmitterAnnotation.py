@@ -1,4 +1,4 @@
-import requests
+import requests, time
 from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
 from python_framework import (
@@ -190,6 +190,8 @@ def MessageEmitterMethod(
             groupKey = None,
             **kwargs
         ):
+            if ObjectHelper.isNone(messageKey):
+                messageKey = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             verb = HttpDomain.Verb.POST
             url, params, headers, body, timeout, logRequest = ClientUtil.parseParameters(
                 resourceInstance,
@@ -199,7 +201,7 @@ def MessageEmitterMethod(
                 headers,
                 Serializer.getObjectAsDictionary(
                     MessageDto.MessageRequestDto(
-                        key = ConverterStatic.getValueOrDefault(messageKey, Serializer.newUuid()),
+                        key = messageKey,
                         queueKey = queueKey,
                         groupKey = groupKey,
                         content = body

@@ -11,8 +11,9 @@ class SubscriptionModelValidator:
     def validateRequestDto(self, dto):
         if ObjectHelper.isNone(dto) or ObjectHelper.isNone(dto.key):
             raise GlobalException(
-                logMessage = f'Subscription key cannot be None. Subscription dto: {dto}',
-                status = HttpStatus.INTERNAL_SERVER_ERROR
+                message = f'Subscription key cannot be None',
+                logMessage = f'Subscription: {dto}',
+                status = HttpStatus.BAD_REQUEST
             )
 
 
@@ -31,7 +32,7 @@ class SubscriptionModelValidator:
     def validateIsAtLeastOne(self, modelList, queueKey):
         if ObjectHelper.isEmpty(modelList):
             raise GlobalException(
-                logMessage = f'There are no subscriptions listenning to this queue: {queueKey}. Subscriptions: {modelList}',
+                message = f'There are no subscriptions listenning to this queue: {queueKey}. Subscriptions: {modelList}',
                 status = HttpStatus.BAD_REQUEST
             )
 

@@ -11,8 +11,9 @@ class QueueModelValidator:
     def validateRequestDto(self, dto):
         if ObjectHelper.isNone(dto) or ObjectHelper.isNone(dto.key):
             raise GlobalException(
-                logMessage = f'Queue key cannot be None. Queue dto: {dto}',
-                status = HttpStatus.INTERNAL_SERVER_ERROR
+                message = f'Queue key cannot be None',
+                logMessage = f'Subscription: {dto}',
+                status = HttpStatus.BAD_REQUEST
             )
 
 

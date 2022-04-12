@@ -18,7 +18,7 @@ class EmissionClient:
         logRequest = True,
         logResponse = True,
         requestClass = [str, MessageDto.MessageRequestDto],
-        responseClass = [MessageDto.MessageResponseDto]
+        responseClass = [MessageDto.MessageCreationResponseDto]
     )
     def send(self, url, dto):
         return self.post(
