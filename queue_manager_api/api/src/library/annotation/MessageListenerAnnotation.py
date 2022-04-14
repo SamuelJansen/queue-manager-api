@@ -152,12 +152,12 @@ def MessageListenerMethod(
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
+                    messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY, {}),
                     responseClass,
+                    responseHeaders,
                     consumes,
                     produces,
-                    responseHeaders,
-                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                    requestBody = messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY)
+                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException
                 )
                 completeResponse = [
                     MessageDto.MessageCreationResponseDto(
@@ -216,12 +216,12 @@ def resolveListenerCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
+    requestBody,
     responseClass,
+    defaultResponseHeaders,
     consumes,
     produces,
-    defaultResponseHeaders,
     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-    requestBody = {},
     verb = HttpDomain.Verb.POST,
     logRequestMessage = LogConstant.LISTENER_REQUEST,
     context = HttpDomain.LISTENER_CONTEXT
