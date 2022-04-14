@@ -152,7 +152,7 @@ def MessageListenerMethod(
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
-                    messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY, {}),
+                    messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
                     responseClass,
                     responseHeaders,
                     consumes,
