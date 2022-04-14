@@ -123,17 +123,18 @@ class InnerMethodWrapperManager:
 
 
     def updateResourceInstance(self, args):
-        if ObjectHelper.isNone(args) or ObjectHelper.isEmpty(args):
-            try:
-                self.resourceInstance = FlaskManager.getResourceSelf(
-                    self.api,
-                    self.resourceTypeName,
-                    self.resourceInstanceName
-                )
-            except Exception as exception:
-                log.log(self.updateResourceInstance, f'Not possible to get "{self.resourceInstanceName}" resource instance. Make sure to add it in method usage scope', exception=exception, muteStackTrace=True)
-        else :
-            self.resourceInstance = args[0]
+        if ObjectHelper.isNone(self.resourceInstance):
+            if ObjectHelper.isNone(args) or ObjectHelper.isEmpty(args):
+                try:
+                    self.resourceInstance = FlaskManager.getResourceSelf(
+                        self.api,
+                        self.resourceTypeName,
+                        self.resourceInstanceName
+                    )
+                except Exception as exception:
+                    log.log(self.updateResourceInstance, f'Not possible to get "{self.resourceInstanceName}" resource instance. Make sure to add it in method usage scope', exception=exception, muteStackTrace=True)
+            else :
+                self.resourceInstance = args[0]
         try :
             resourceInstanceEnabled = ConverterStatic.getValueOrDefault(self.resourceInstance.enabled, self.defaultEnabled)
             resourceInstanceMuteLogs = ConverterStatic.getValueOrDefault(self.resourceInstance.muteLogs, self.defaultMuteLogs)

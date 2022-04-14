@@ -190,9 +190,10 @@ def MessageEmitterMethod(
             groupKey = None,
             **kwargs
         ):
-            if ObjectHelper.isNone(messageKey):
-                messageKey = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             verb = HttpDomain.Verb.POST
+            print(f'logRequest: {logRequest}')
+            print(f'resourceMethodConfig.wrapperManager.resourceInstance.logRequest: {resourceMethodConfig.wrapperManager.resourceInstance.logRequest}, resourceMethodConfig.wrapperManager.logRequest: {resourceMethodConfig.wrapperManager.logRequest}')
+            print(f'resourceMethodConfig.wrapperManager.shouldLogRequest(): {resourceMethodConfig.wrapperManager.shouldLogRequest()}')
             url, params, headers, body, timeout, logRequest = ClientUtil.parseParameters(
                 resourceInstance,
                 resourceMethodConfig,
@@ -247,7 +248,10 @@ def MessageEmitterMethod(
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
             resourceMethodGroupKey = None if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
             resourceMethodMessageKey = None if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
-            key = ConverterStatic.getValueOrDefault(resourceMethodMessageKey, Serializer.newUuid())
+            if ObjectHelper.isNone(resourceMethodMessageKey):
+                key = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
+            else:
+                key
             messageCreationRequest = MessageDto.MessageCreationRequestDto(
                 key = key,
                 queueKey = resourceMethodQueueKey,

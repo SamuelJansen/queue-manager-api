@@ -143,16 +143,6 @@ def MessageListenerMethod(
                     context = HttpDomain.LISTENER_CONTEXT
                 )
             else:
-                completeResponse = [
-                    MessageDto.MessageCreationRequestDto(
-                        key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
-                        queueKey = messageAsJson.get(MessageConstant.MESSAGE_QUEUE_KEY_KEY),
-                        groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
-                    ),
-                    {},
-                    HttpStatus.ACCEPTED,
-                    produces
-                ]
                 wrapperManager.resourceInstance.threadManager.runInAThread(
                     resolveControllerCall,
                     args,
@@ -164,10 +154,19 @@ def MessageListenerMethod(
                     consumes,
                     produces,
                     defaultResponseHeaders,
-                    logRequest,
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
                     requestBody = messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY)
                 )
+                completeResponse = [
+                    MessageDto.MessageCreationResponseDto(
+                        key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
+                        queueKey = messageAsJson.get(MessageConstant.MESSAGE_QUEUE_KEY_KEY),
+                        groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
+                    ),
+                    {},
+                    HttpStatus.ACCEPTED,
+                    produces
+                ]
 
             httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
             if wrapperManager.shouldLogResponse():
@@ -218,7 +217,6 @@ def resolveControllerCall(
     consumes,
     produces,
     defaultResponseHeaders,
-    logRequest,
     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
     requestBody = {},
     verb = HttpDomain.Verb.POST,
@@ -237,7 +235,7 @@ def resolveControllerCall(
             requestHeaderClass,
             requestParamClass,
             requestClass,
-            logRequest,
+            wrapperManager.shouldLogRequest(),
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
             requestBody = requestBody,
             verb = verb,
@@ -245,6 +243,7 @@ def resolveControllerCall(
         )
         FlaskManager.validateCompleteResponse(responseClass, completeResponse)
     except Exception as exception:
+        log.log(resolveControllerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
         completeResponse = FlaskManager.getCompleteResponseByException(
             exception,
             wrapperManager.resourceInstance,
