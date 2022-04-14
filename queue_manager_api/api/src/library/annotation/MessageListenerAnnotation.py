@@ -144,13 +144,14 @@ def MessageListenerMethod(
                 )
             else:
                 wrapperManager.resourceInstance.threadManager.runInAThread(
-                    resolveControllerCall,
+                    resolveListenerCall,
                     args,
                     kwargs,
                     wrapperManager,
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
+                    responseClass,
                     consumes,
                     produces,
                     responseHeaders,
@@ -207,13 +208,14 @@ def MessageListenerMethod(
 
 
 
-def resolveControllerCall(
+def resolveListenerCall(
     args,
     kwargs,
     wrapperManager,
     requestHeaderClass,
     requestParamClass,
     requestClass,
+    responseClass,
     consumes,
     produces,
     defaultResponseHeaders,
@@ -243,7 +245,7 @@ def resolveControllerCall(
         )
         FlaskManager.validateCompleteResponse(responseClass, completeResponse)
     except Exception as exception:
-        log.log(resolveControllerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
+        log.log(resolveListenerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
         completeResponse = FlaskManager.getCompleteResponseByException(
             exception,
             wrapperManager.resourceInstance,
@@ -261,7 +263,7 @@ def resolveControllerCall(
         responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
         httpResponse = FlaskUtil.buildHttpResponse(additionalResponseHeaders, responseBody, status.enumValue, produces)
     except Exception as exception:
-        log.failure(innerResourceInstanceMethod, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
+        log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
         completeResponse = getCompleteResponseByException(
             Exception(f'Not possible to handle complete response. Cause: {str(exception)}'),
             wrapperManager.resourceInstance,

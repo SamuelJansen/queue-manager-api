@@ -138,7 +138,7 @@ class InnerMethodWrapperManager:
         try :
             resourceInstanceEnabled = ConverterStatic.getValueOrDefault(self.resourceInstance.enabled, self.defaultEnabled)
             resourceInstanceMuteLogs = ConverterStatic.getValueOrDefault(self.resourceInstance.muteLogs, self.defaultMuteLogs)
-            self.timeout = ConverterStatic.getValueOrDefault(self.timeout, ConverterStatic.getValueOrDefault(resourceInstance.timeout, self.defaultTimeout))
+            self.timeout = ConverterStatic.getValueOrDefault(self.timeout, ConverterStatic.getValueOrDefault(self.resourceInstance.timeout, self.defaultTimeout))
             self.enabled = resourceInstanceEnabled and ConverterStatic.getValueOrDefault(self.enabled, self.defaultEnabled)
             self.muteLogs = resourceInstanceMuteLogs or ConverterStatic.getValueOrDefault(self.muteLogs, self.defaultMuteLogs)
             self.logRequest = self.logRequest and ConverterStatic.getValueOrDefault(self.resourceInstance.logRequest, False)

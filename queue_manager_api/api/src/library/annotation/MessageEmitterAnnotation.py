@@ -258,7 +258,7 @@ def MessageEmitterMethod(
                 groupKey = ConverterStatic.getValueOrDefault(resourceMethodGroupKey, key)
             )
             wrapperManager.resourceInstance.threadManager.runInAThread(
-                resolveClientCall,
+                resolveEmitterCall,
                 args,
                 kwargs,
                 wrapperManager,
@@ -296,7 +296,7 @@ def MessageEmitterMethod(
     return innerMethodWrapper
 
 
-def resolveClientCall(
+def resolveEmitterCall(
     args,
     kwargs,
     wrapperManager,
@@ -357,9 +357,9 @@ def resolveClientCall(
             raise Exception('Unknown emitter event')
     except Exception as exception:
         if isinstance(exception, GlobalException):
-            log.log(resolveClientCall, 'Failure at emitter method execution', exception=exception, muteStackTrace=True)
+            log.log(resolveEmitterCall, 'Failure at emitter method execution', exception=exception, muteStackTrace=True)
         else:
-            log.failure(resolveClientCall, 'Failure at emitter method execution', exception=exception)
+            log.failure(resolveEmitterCall, 'Failure at emitter method execution', exception=exception)
         FlaskManager.raiseAndPersistGlobalException(
             exception,
             wrapperManager.resourceInstance,
