@@ -143,8 +143,9 @@ def MessageListenerMethod(
                     context = HttpDomain.LISTENER_CONTEXT
                 )
             else:
-                wrapperManager.resourceInstance.threadManager.runInAThread(
-                    resolveListenerCall,
+                # wrapperManager.resourceInstance.threadManager.runInAThread(
+                    # resolveListenerCall,
+                resolveListenerCall(
                     args,
                     kwargs,
                     wrapperManager,
