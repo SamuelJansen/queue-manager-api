@@ -191,9 +191,9 @@ def MessageEmitterMethod(
             **kwargs
         ):
             verb = HttpDomain.Verb.POST
-            print(f'logRequest: {logRequest}')
-            print(f'resourceMethodConfig.wrapperManager.resourceInstance.logRequest: {resourceMethodConfig.wrapperManager.resourceInstance.logRequest}, resourceMethodConfig.wrapperManager.logRequest: {resourceMethodConfig.wrapperManager.logRequest}')
-            print(f'resourceMethodConfig.wrapperManager.shouldLogRequest(): {resourceMethodConfig.wrapperManager.shouldLogRequest()}')
+            # print(f'logRequest: {logRequest}')
+            # print(f'resourceMethodConfig.wrapperManager.resourceInstance.logRequest: {resourceMethodConfig.wrapperManager.resourceInstance.logRequest}, resourceMethodConfig.wrapperManager.logRequest: {resourceMethodConfig.wrapperManager.logRequest}')
+            # print(f'resourceMethodConfig.wrapperManager.shouldLogRequest(): {resourceMethodConfig.wrapperManager.shouldLogRequest()}')
             url, params, headers, body, timeout, logRequest = ClientUtil.parseParameters(
                 resourceInstance,
                 resourceMethodConfig,
@@ -366,10 +366,10 @@ def resolveClientCall(
             wrapperManager.resourceInstanceMethod,
             context = HttpDomain.EMITTER_CONTEXT
         )
-    resourceMethodResponseStatus = completeResponse[-1]
-    resourceMethodResponseHeaders = completeResponse[1]
-    resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
     if wrapperManager.shouldLogResponse():
+        resourceMethodResponseStatus = completeResponse[-1]
+        resourceMethodResponseHeaders = completeResponse[1]
+        resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
         log.prettyJson(
             wrapperManager.resourceInstanceMethod,
             LogConstant.EMITTER_RESPONSE,

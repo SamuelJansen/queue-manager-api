@@ -170,13 +170,14 @@ def MessageListenerMethod(
             httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
             if wrapperManager.shouldLogResponse():
                 try:
+                    resourceMethodResponseStatus = completeResponse[-1]
                     log.prettyJson(
                         wrapperManager.resourceInstanceMethod,
                         LogConstant.LISTENER_RESPONSE,
                         {
                             'headers': FlaskUtil.safellyGetResponseHeaders(httpResponse),
                             'body': FlaskUtil.safellyGetFlaskResponseJson(httpResponse),
-                            'status': status
+                            'status': resourceMethodResponseStatus.enumValue
                         },
                         condition = True,
                         logLevel = log.INFO
