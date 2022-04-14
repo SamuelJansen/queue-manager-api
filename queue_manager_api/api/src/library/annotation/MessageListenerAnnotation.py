@@ -164,8 +164,7 @@ def MessageListenerMethod(
                         groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
                     ),
                     {},
-                    HttpStatus.ACCEPTED,
-                    produces
+                    HttpStatus.ACCEPTED
                 ]
 
             httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
