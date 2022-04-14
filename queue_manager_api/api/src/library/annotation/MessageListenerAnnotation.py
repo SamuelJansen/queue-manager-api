@@ -153,7 +153,7 @@ def MessageListenerMethod(
                     requestClass,
                     consumes,
                     produces,
-                    defaultResponseHeaders,
+                    responseHeaders,
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
                     requestBody = messageAsJson.get(MessageConstant.MESSAGE_CONTEXT_KEY)
                 )
