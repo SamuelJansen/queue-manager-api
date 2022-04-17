@@ -6,7 +6,7 @@ import Emission
 
 
 @HttpClient(
-    # muteLogs = False,
+    muteLogs = False,
     logRequest = True,
     logResponse = True,
     timeout = MessageConfig.EMITTER_TIMEOUT,
