@@ -14,6 +14,7 @@ class Emission:
         queueKey = None,
         subscriptionKey = None,
         url = None,
+        headers = None,
         tries = None,
         onErrorUrl = None,
         onErrorTries = None,
@@ -34,6 +35,9 @@ class Emission:
         self.backOff = ConverterStatic.getValueOrDefault(backOff, EmissionConstant.DEFAULT_BACKOFF)
         self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
         self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
+        self.headers = Serializer.convertFromJsonToDictionary(
+            ConverterStatic.getValueOrDefault(headers, EmissionConstant.DEFAULT_HEADERS)
+        )
         self.setMessage(message)
         self.setHistory(history)
 

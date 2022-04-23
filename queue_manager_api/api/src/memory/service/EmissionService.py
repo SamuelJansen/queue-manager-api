@@ -5,7 +5,6 @@ from python_framework import Service, ServiceMethod
 from constant import EmissionConstant
 from enumeration.ModelState import ModelState
 from enumeration.ModelStatus import ModelStatus
-from util import ThreadUtil
 
 import MessageDto
 import Emission, Message, SubscriptionModel, QueueModel
@@ -16,8 +15,6 @@ LOG_LEVEL = log.STATUS
 
 @Service()
 class EmissionService:
-
-    threadManager = ThreadUtil.ThreadManager()
 
     @ServiceMethod(requestClass=[Message.Message, SubscriptionModel.SubscriptionModel, QueueModel.QueueModel])
     def buildNewModel(self, message, subscription, queue):
@@ -30,6 +27,7 @@ class EmissionService:
             onErrorTries = EmissionConstant.ZERO_TRIES,
             maxTries = subscription.maxTries,
             backOff = subscription.backOff,
+            headers = subscription.headers,
             state = ModelState.INSTANTIATED,
             message = message
         )
@@ -66,12 +64,12 @@ class EmissionService:
         log.prettyPython(self.sendAllAcceptedFromOneQueue, f'Processing queued message emissions', modelList, logLevel=LOG_LEVEL)
         self.validator.emission.validateAllBelongsToTheSameQueue(modelList)
         for model in modelList:
-            self.send(model)
+            self.sendInAThread(model)
 
 
     @ServiceMethod(requestClass=[Emission.Emission])
     def sendInAThread(self, model):
-        self.threadManager.runInAThread(self.send, model)
+        self.globals.api.queueManager.runInAThread(self.send, model)
 
 
     @ServiceMethod(requestClass=[Emission.Emission])
@@ -88,11 +86,11 @@ class EmissionService:
             emissionResponse = None
             if model.maxTries > model.tries:
                 model.tries += 1
-                emissionResponse = self.client.emission.send(model.url, messageRequestDto)
+                emissionResponse = self.sendToDestiny(model.url, model.headers, messageRequestDto)
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.PROCESSED)
             elif ObjectHelper.isNeitherNoneNorBlank(model.onErrorUrl):
                 model.onErrorTries += 1
-                emissionResponse = self.client.emission.send(model.onErrorUrl, messageRequestDto)
+                emissionResponse = self.sendToDestiny(model.onErrorUrl, model.headers, messageRequestDto)
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.PROCESSED_WITH_ERRORS)
             return emissionResponse
         except Exception as exception:
@@ -109,6 +107,11 @@ class EmissionService:
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.UNPROCESSED)
                 log.failure(self.send, f'Queued message emission "{model}" processed with errors', exception=exception, muteStackTrace=True)
                 return exception
+
+
+    @ServiceMethod(requestClass=[str, dict, MessageDto.MessageRequestDto])
+    def sendToDestiny(self, url, headers, messageRequestDto):
+        return self.client.emission.send(url, messageRequestDto, headers=headers)
 
 
     @ServiceMethod()

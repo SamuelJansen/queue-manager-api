@@ -1,9 +1,9 @@
-from python_framework import ConverterStatic
+from python_framework import ConverterStatic, Serializer
 
 try:
-    from queue_manager_api.api.src.library.constant import SubscriptionConstant
-except:
     import SubscriptionConstant
+except:
+    from queue_manager_api.api.src.library.constant import SubscriptionConstant
 
 
 class SubscriptionRequestDto:
@@ -13,13 +13,17 @@ class SubscriptionRequestDto:
         onErrorUrl = None,
         maxTries = None,
         backOff = None,
-        queue = None
+        queue = None,
+        headers = None
     ):
         self.key = key
         self.url = url
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
+        self.headers = Serializer.convertFromJsonToDictionary(
+            ConverterStatic.getValueOrDefault(headers, SubscriptionConstant.DEFAULT_HEADERS)
+        )
         self.queue = queue
 
 
@@ -30,11 +34,15 @@ class SubscriptionResponseDto:
         onErrorUrl = None,
         maxTries = None,
         backOff = None,
-        queue = None
+        queue = None,
+        headers = None
     ):
         self.key = key
         self.url = url
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
+        self.headers = Serializer.convertFromJsonToDictionary(
+            ConverterStatic.getValueOrDefault(headers, SubscriptionConstant.DEFAULT_HEADERS)
+        )
         self.queue = queue

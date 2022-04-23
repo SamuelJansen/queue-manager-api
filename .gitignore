@@ -13,6 +13,7 @@ example*.txt
 *example.txt
 dummydata/
 temp/
+migrations.yml
 
 # C extensions
 *.so

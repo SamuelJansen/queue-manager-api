@@ -36,6 +36,7 @@ class SubscriptionModelMapper:
         model.onErrorUrl = ConverterStatic.getValueOrDefault(dto.onErrorUrl, model.onErrorUrl)
         model.maxTries = ConverterStatic.getValueOrDefault(dto.maxTries, model.maxTries)
         model.backOff = ConverterStatic.getValueOrDefault(dto.backOff, model.backOff)
+        model.headers = ConverterStatic.getValueOrDefault(dto.headers, model.headers)
 
 
     @MapperMethod(requestClass=[str, SubscriptionModel.SubscriptionModel])

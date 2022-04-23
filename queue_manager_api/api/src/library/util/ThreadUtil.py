@@ -1,20 +1,8 @@
-from python_helper import log, ObjectHelper
-from python_framework import ConverterStatic
+from python_helper import ObjectHelper
 from threading import Thread
-import time
 
 
 DEFAULT_TIMEOUT = 20
-
-
-def killDeadThreads(threadManager, threadDictionary):
-    while 0 < len(threadDictionary):
-        time.sleep(5)
-        finishedThreads = [k for k, t in threadDictionary.items() if not t.isAlive()]
-        for k in finishedThreads:
-            threadDictionary.pop(k)
-            log.debug(killDeadThreads, f'The {k}th tread is finished')
-    threadManager.killingDeadThreads = False
 
 
 def runInSimpleThread(target, *args, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
@@ -24,46 +12,44 @@ def runInSimpleThread(target, *args, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
 
 class ApplicationThread:
 
-    shouldStop = False
-
     def __init__(self, target, *args, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
+        self.running = False
+        self.shouldStop = False
         self.thread = Thread(
             target = target,
             args = args,
             kwargs = kwargs
         )
-        self.timeout = ConverterStatic.getValueOrDefault(threadTimeout, DEFAULT_TIMEOUT)
+        self.timeout = threadTimeout
 
 
     def run(self, threadTimeout=DEFAULT_TIMEOUT):
-        self.thread.start()
+        if not self.isRunning():
+            self.thread.start()
+            self.running = True
+            self.shouldStop = False
         # self.thread.join(timeout=threadTimeout if ObjectHelper.isNone(self.timeout) else self.timeout)
+
+
+    def kill(self):
+        self.shouldStop = True
+        self.running = False
+        del self.thread
+        self.thread = None
+
+
+    def isRunning(self):
+        return (self.isAlive() or self.running) and not self.shouldStop
 
 
     def isAlive(self):
         return self.thread.is_alive()
 
 
-class ThreadManager:
-
-    def __init__(self, threadTimeout=DEFAULT_TIMEOUT):
-        self.threadDictionary = {}
-        self.killingDeadThreads = False
-        self.timeout = threadTimeout
+    def shouldStopRunning(self):
+        return True and self.shouldStop
 
 
-    def new(self, target, *args, **kwargs):
-        return ApplicationThread(target, *args, **kwargs)
-
-
-    def runInAThread(self, target, *args, **kwargs):
-        thread = self.new(target, *args, threadTimeout=self.timeout, **kwargs)
-        self.threadDictionary[len(self.threadDictionary)] = thread
-        thread.run()
-        self.killDeadThreads()
-
-
-    def killDeadThreads(self):
-        if not self.killingDeadThreads:
-            self.killingDeadThreads = True
-            self.runInAThread(killDeadThreads, self, self.threadDictionary)
+    def runItIfItsNotRunningYet(self, threadTimeout=DEFAULT_TIMEOUT):
+        if not self.isRunning():
+            self.run(threadTimeout=threadTimeout)

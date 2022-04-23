@@ -17,14 +17,13 @@ from python_framework import (
 )
 
 try:
-    from queue_manager_api.api.src.library.util import AnnotationUtil
-    from queue_manager_api.api.src.library.util import ThreadUtil
-    from queue_manager_api.api.src.library.constant import MessageConstant
-    from queue_manager_api.api.src.library.dto import MessageDto
-except:
-    import AnnotationUtil, ThreadUtil
     import MessageConstant
+    import AnnotationUtil
     import MessageDto
+except:
+    from queue_manager_api.api.src.library.constant import MessageConstant
+    from queue_manager_api.api.src.library.util import AnnotationUtil
+    from queue_manager_api.api.src.library.dto import MessageDto
 
 
 DEFAULT_TIMEOUT = 2
@@ -74,7 +73,7 @@ def MessageListener(
                     resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_LISTENER_MUTE_LOGS,
                     resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
                 )
-                self.threadManager = ThreadUtil.ThreadManager(threadTimeout=self.timeout)
+                self.queueManager = api.queueManager
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
         return InnerClass
     return Wrapper
@@ -143,8 +142,9 @@ def MessageListenerMethod(
                     context = HttpDomain.LISTENER_CONTEXT
                 )
             else:
-                # wrapperManager.resourceInstance.threadManager.runInAThread(
-                    # resolveListenerCall,
+                ###- Althought it would be better, we still lose the context
+                # wrapperManager.resourceInstance.queueManager.runInAThread(
+                #     resolveListenerCall,
                 resolveListenerCall(
                     args,
                     kwargs,

@@ -16,11 +16,13 @@ class EmissionClient:
     @HttpClientMethod(
         logRequest = True,
         logResponse = True,
+        requestHeaderClass = dict,
         requestClass = [str, MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageCreationResponseDto]
     )
-    def send(self, url, dto):
+    def send(self, url, dto, headers=None):
         return self.post(
             additionalUrl = url,
+            headers = headers,
             body = Serializer.getObjectAsDictionary(dto)
         )

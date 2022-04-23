@@ -17,15 +17,14 @@ from python_framework import (
 )
 
 try:
+    import AnnotationUtil
+    import HttpEmitterConstant, MessageConstant
+    import MessageDto
+except:
     from queue_manager_api.api.src.library.util import AnnotationUtil
     from queue_manager_api.api.src.library.dto import MessageDto
     from queue_manager_api.api.src.library.constant import HttpEmitterConstant
     from queue_manager_api.api.src.library.constant import MessageConstant
-    from queue_manager_api.api.src.library.util import ThreadUtil
-except:
-    import AnnotationUtil, ThreadUtil
-    import HttpEmitterConstant, MessageConstant
-    import MessageDto
 
 
 DEFAULT_TIMEOUT = 2
@@ -73,7 +72,7 @@ def MessageEmitter(
                     resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_EMITTER_MUTE_LOGS,
                     resourceTimeoutConfigKey = ConfigurationKeyConstant.API_EMITTER_TIMEOUT
                 )
-                self.threadManager = ThreadUtil.ThreadManager(threadTimeout=self.timeout)
+                self.queueManager = api.queueManager
             def emit(self, *args, **kwargs):
                 raise ClientUtil.HttpClientEvent(HttpDomain.Verb.POST, *args, eventContext=resourceEventContext, **kwargs)
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
@@ -255,7 +254,7 @@ def MessageEmitterMethod(
                 queueKey = resourceMethodQueueKey,
                 groupKey = ConverterStatic.getValueOrDefault(resourceMethodGroupKey, key)
             )
-            wrapperManager.resourceInstance.threadManager.runInAThread(
+            wrapperManager.resourceInstance.queueManager.runInAThread(
                 resolveEmitterCall,
                 args,
                 kwargs,
