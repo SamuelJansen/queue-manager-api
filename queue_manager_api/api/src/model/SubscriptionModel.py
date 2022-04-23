@@ -17,7 +17,7 @@ class SubscriptionModel(MODEL):
     onErrorUrl = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE))
     maxTries = sap.Column(sap.Integer(), nullable=False, default=SubscriptionConstant.DEFAULT_MAX_TRIES)
     backOff = sap.Column(sap.Float(precision=3), nullable=False, default=SubscriptionConstant.DEFAULT_BACKOFF)
-    headers = sap.Column(sap.String(sap.LARGE_STRING_SIZE), nullable=False, default=SubscriptionConstant.DEFAULT_HEADERS)
+    headers = sap.Column(sap.String(sap.GIANT_STRING_SIZE), nullable=False, default=SubscriptionConstant.DEFAULT_HEADERS)
 
     queue, queueId = sap.getManyToOne(SUBSCRIPTION, QUEUE, MODEL)
 
