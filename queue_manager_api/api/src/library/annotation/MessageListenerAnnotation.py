@@ -229,7 +229,7 @@ def resolveListenerCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
-    requestHeader,
+    requestHeaders,
     requestParam,
     requestBody,
     responseClass,
@@ -258,7 +258,7 @@ def resolveListenerCall(
             wrapperManager.shouldLogRequest(),
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
             verb = verb,
-            requestHeader = requestHeader,
+            requestHeaders = requestHeaders,
             requestParam = requestParam,
             requestBody = requestBody,
             logRequestMessage = logRequestMessage
