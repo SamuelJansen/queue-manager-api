@@ -1,8 +1,10 @@
 from python_helper import log
 from python_framework import HttpStatus, FlaskUtil
-from MessageListenerAnnotation import MessageListener
-from MessageListenerAnnotation import MessageListenerMethod
 
+from annotation.MessageListenerAnnotation import MessageListener
+from annotation.MessageListenerAnnotation import MessageListenerMethod
+
+from enumeration.AccessDomain import AccessDomain
 from config import MessageConfig
 import MessageDto
 import Message
@@ -18,7 +20,8 @@ class MessageListener:
 
     @MessageListenerMethod(url = '/test/listener/message',
         requestClass=[MessageDto.MessageRequestDto],
-        responseClass=[MessageDto.MessageCreationRequestDto]
+        responseClass=[MessageDto.MessageCreationRequestDto],
+        apiKeyRequired=['AccessDomain.API']
         , logRequest = True
         , logResponse = True
     )
@@ -28,7 +31,8 @@ class MessageListener:
 
     @MessageListenerMethod(url = '/test/listener/another-message',
         requestClass=[MessageDto.MessageRequestDto],
-        responseClass=[MessageDto.MessageCreationRequestDto]
+        responseClass=[MessageDto.MessageCreationRequestDto],
+        apiKeyRequired=[AccessDomain.API]
         , logRequest = True
         , logResponse = True
     )

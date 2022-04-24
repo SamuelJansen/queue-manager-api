@@ -9,7 +9,7 @@ class MessateTestController:
 
 
     @ControllerMethod(url = '/',
-        apiKeyRequired = [AccessDomain.API],
+        apiKeyRequired = ['SOMETHING_ELSE'],
         requestClass = [MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageResponseDto]
         , logRequest = True
@@ -23,7 +23,7 @@ class MessateTestController:
 class MessateTestBulkController:
 
     @ControllerMethod(url = '/',
-        # apiKeyRequired= [AccessDomain.API],
+        apiKeyRequired = [AccessDomain.API],
         requestClass = [MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageResponseDto]
         , logRequest = True

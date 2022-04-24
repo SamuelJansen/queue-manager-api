@@ -89,7 +89,9 @@ def MessageListenerMethod(
     requestClass = None,
     responseClass = None,
     responseHeaders = None,
+    roleRequired = None,
     apiKeyRequired = None,
+    contextRequired = None,
     consumes = OpenApiManager.DEFAULT_CONTENT_TYPE,
     produces = OpenApiManager.DEFAULT_CONTENT_TYPE,
     logRequest = True,
@@ -97,6 +99,7 @@ def MessageListenerMethod(
     enabled = True,
     muteLogs = False,
     muteStacktraceOnBusinessRuleException = True,
+    runInAThread = False,
     **methodKwargs
 ):
     def innerMethodWrapper(resourceInstanceMethod, *innerMethodArgs, **innerMethodKwargs):
@@ -115,6 +118,7 @@ def MessageListenerMethod(
             resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
         )
         resourceInstanceMethodMuteStacktraceOnBusinessRuleException = muteStacktraceOnBusinessRuleException
+        resourceInstanceMethodRunInAThread = runInAThread
         listenerUrl = f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}'
         if listenerUrl.endswith(c.SLASH):
             listenerUrl = listenerUrl[:-1]
@@ -142,16 +146,18 @@ def MessageListenerMethod(
                     context = HttpDomain.LISTENER_CONTEXT
                 )
             else:
-                ###- Althought it would be better, we still lose the context
-                # wrapperManager.resourceInstance.queueManager.runInAThread(
-                #     resolveListenerCall,
-                resolveListenerCall(
+                listennerArgs = (
                     args,
                     kwargs,
                     wrapperManager,
+                    roleRequired,
+                    apiKeyRequired,
+                    contextRequired,
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
+                    FlaskUtil.safellyGetHeaders(),
+                    FlaskUtil.safellyGetArgs(),
                     messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
                     responseClass,
                     responseHeaders,
@@ -159,6 +165,10 @@ def MessageListenerMethod(
                     produces,
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException
                 )
+                if resourceInstanceMethodRunInAThread:
+                    wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCall, *listennerArgs)
+                else:
+                    instanceMethodCompleteResponse = resolveListenerCall(*listennerArgs)
                 completeResponse = [
                     MessageDto.MessageCreationResponseDto(
                         key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
@@ -168,7 +178,6 @@ def MessageListenerMethod(
                     {},
                     HttpStatus.ACCEPTED
                 ]
-
             httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
             if wrapperManager.shouldLogResponse():
                 try:
@@ -203,6 +212,7 @@ def MessageListenerMethod(
         innerResourceInstanceMethod.enabled = enabled
         innerResourceInstanceMethod.muteLogs = muteLogs
         innerResourceInstanceMethod.muteStacktraceOnBusinessRuleException = resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+        innerResourceInstanceMethod.runInAThread = resourceInstanceMethodRunInAThread
         return innerResourceInstanceMethod
     return innerMethodWrapper
 
@@ -213,35 +223,44 @@ def resolveListenerCall(
     args,
     kwargs,
     wrapperManager,
+    roleRequired,
+    apiKeyRequired,
+    contextRequired,
     requestHeaderClass,
     requestParamClass,
     requestClass,
+    requestHeader,
+    requestParam,
     requestBody,
     responseClass,
     defaultResponseHeaders,
     consumes,
-    produces,
     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
     verb = HttpDomain.Verb.POST,
     logRequestMessage = LogConstant.LISTENER_REQUEST,
     context = HttpDomain.LISTENER_CONTEXT
 
-) :
+):
     completeResponse = None
     try:
-        completeResponse = FlaskManager.handleControllerMethod(
+        completeResponse = FlaskManager.handleAnyControllerMethodRequest(
             args,
             kwargs,
             consumes,
             wrapperManager.resourceInstance,
             wrapperManager.resourceInstanceMethod,
+            contextRequired,
+            apiKeyRequired,
+            roleRequired,
             requestHeaderClass,
             requestParamClass,
             requestClass,
             wrapperManager.shouldLogRequest(),
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-            requestBody = requestBody,
             verb = verb,
+            requestHeader = requestHeader,
+            requestParam = requestParam,
+            requestBody = requestBody,
             logRequestMessage = logRequestMessage
         )
         FlaskManager.validateCompleteResponse(responseClass, completeResponse)
@@ -262,7 +281,7 @@ def resolveListenerCall(
         if ObjectHelper.isNotNone(defaultResponseHeaders):
             additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
         responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
-        httpResponse = FlaskUtil.buildHttpResponse(additionalResponseHeaders, responseBody, status.enumValue, produces)
+        completeResponse = [responseBody, additionalResponseHeaders, status]
     except Exception as exception:
         log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
         completeResponse = getCompleteResponseByException(
@@ -271,5 +290,4 @@ def resolveListenerCall(
             wrapperManager.resourceInstanceMethod,
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException
         )
-        httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
-    return httpResponse
+    return completeResponse
