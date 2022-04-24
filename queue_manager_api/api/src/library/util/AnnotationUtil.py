@@ -30,7 +30,7 @@ def initializeComunicationLayerResource(
     resourceTimeoutConfigKey = None,
     defaultEnabled = DEFAUTL_RESOURCE_ENABLED,
     defaultMuteLogs = DEFAUTL_RESOURCE_MUTE_LOGS,
-    defaulTimeout = DEFAULT_TIMEOUT
+    defaultTimeout = DEFAULT_TIMEOUT
 ):
     api = FlaskUtil.retrieveApiInstance(apiInstance=api, arguments=(resourceInstance,))
     resourceInstance.enabled = enabled and ConverterStatic.getValueOrDefault(
@@ -45,7 +45,7 @@ def initializeComunicationLayerResource(
         timeout,
         ConverterStatic.getValueOrDefault(
             api.globals.getApiSetting(resourceTimeoutConfigKey),
-            defaulTimeout
+            defaultTimeout
         )
     )
     resourceInstance.logRequest = logRequest
@@ -54,7 +54,7 @@ def initializeComunicationLayerResource(
     resourceInstance.service = api.resource.service
     resourceInstance.defaultEnabled = defaultEnabled
     resourceInstance.defaultMuteLogs = defaultMuteLogs
-    resourceInstance.defaulTimeout = defaulTimeout
+    resourceInstance.defaultTimeout = defaultTimeout
 
 
 class InnerMethodWrapperManager:
@@ -77,7 +77,7 @@ class InnerMethodWrapperManager:
         resourceTimeoutConfigKey = None,
         defaultEnabled = DEFAUTL_RESOURCE_METHOD_ENABLED,
         defaultMuteLogs = DEFAUTL_RESOURCE_METHOD_MUTE_LOGS,
-        defaulTimeout = DEFAULT_TIMEOUT,
+        defaultTimeout = DEFAULT_TIMEOUT,
         **methodKwargs
     ):
         log.wrapper(wrapperType, f'''wrapping {resourceInstanceMethod.__name__}''')
@@ -93,7 +93,7 @@ class InnerMethodWrapperManager:
         self.id = methodKwargs.get('id', f'{self.methodClassName}{c.DOT}{self.methodName}')
         self.defaultEnabled = defaultEnabled
         self.defaultMuteLogs = defaultMuteLogs
-        self.defaulTimeout = defaulTimeout
+        self.defaultTimeout = defaultTimeout
         self.enabled = enabled and ConverterStatic.getValueOrDefault(
             self.api.globals.getApiSetting(resourceEnabledConfigKey),
             self.defaultEnabled
@@ -106,7 +106,7 @@ class InnerMethodWrapperManager:
             timeout,
             ConverterStatic.getValueOrDefault(
                 self.api.globals.getApiSetting(resourceTimeoutConfigKey),
-                self.defaulTimeout
+                self.defaultTimeout
             )
         )
         self.logRequest = logRequest

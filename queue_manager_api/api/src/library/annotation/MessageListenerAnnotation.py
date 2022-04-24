@@ -128,7 +128,11 @@ def MessageListenerMethod(
             messageAsJson = FlaskUtil.safellyGetRequestBody()
             if not wrapperManager.muteLogs:
                 log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{FlaskUtil.safellyGetVerb()}{c.SPACE_DASH_SPACE}{FlaskUtil.safellyGetUrl()}''')
-
+                try:
+                    messageCreationRequestDto = Serializer.getObjectAsDictionary(Serializer.convertFromJsonToObject(messageAsJson, MessageDto.MessageCreationRequestDto))
+                    log.prettyPython(wrapperManager.resourceInstanceMethod, f'{LogConstant.LISTENER_SPACE}Message data', messageCreationRequestDto, logLevel=log.INFO)
+                except Exception as exception:
+                    log.failure(innerResourceInstanceMethod, 'Not possible to log message data properly', exception)
             if not wrapperManager.enabled:
                 completeResponse = FlaskManager.getCompleteResponseByException(
                     GlobalException(logMessage='This resource is temporarily disabled', status=HttpStatus.SERVICE_UNAVAILABLE),
@@ -162,22 +166,22 @@ def MessageListenerMethod(
                     responseClass,
                     responseHeaders,
                     consumes,
-                    produces,
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException
                 )
                 if resourceInstanceMethodRunInAThread:
                     wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCall, *listennerArgs)
                 else:
-                    instanceMethodCompleteResponse = resolveListenerCall(*listennerArgs)
-                completeResponse = [
-                    MessageDto.MessageCreationResponseDto(
-                        key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
-                        queueKey = messageAsJson.get(MessageConstant.MESSAGE_QUEUE_KEY_KEY),
-                        groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
-                    ),
-                    {},
-                    HttpStatus.ACCEPTED
-                ]
+                    completeResponse = resolveListenerCall(*listennerArgs)
+                if HttpStatus.BAD_REQUEST < completeResponse[-1]:
+                    completeResponse = [
+                        MessageDto.MessageCreationResponseDto(
+                            key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),
+                            queueKey = messageAsJson.get(MessageConstant.MESSAGE_QUEUE_KEY_KEY),
+                            groupKey = messageAsJson.get(MessageConstant.MESSAGE_GROUP_KEY)
+                        ),
+                        {},
+                        HttpStatus.ACCEPTED
+                    ]
             httpResponse = FlaskUtil.buildHttpResponse(completeResponse[1], completeResponse[0], completeResponse[-1].enumValue, produces)
             if wrapperManager.shouldLogResponse():
                 try:
@@ -230,7 +234,7 @@ def resolveListenerCall(
     requestParamClass,
     requestClass,
     requestHeaders,
-    requestParam,
+    requestParams,
     requestBody,
     responseClass,
     defaultResponseHeaders,
@@ -259,7 +263,7 @@ def resolveListenerCall(
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
             verb = verb,
             requestHeaders = requestHeaders,
-            requestParam = requestParam,
+            requestParams = requestParams,
             requestBody = requestBody,
             logRequestMessage = logRequestMessage
         )
