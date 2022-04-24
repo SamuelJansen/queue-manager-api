@@ -289,7 +289,7 @@ def resolveListenerCall(
     except Exception as exception:
         log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
         completeResponse = getCompleteResponseByException(
-            Exception(f'Not possible to handle complete response. Cause: {str(exception)}'),
+            Exception(f'Not possible to handle complete response{c.DOT_SPACE_CAUSE}{str(exception)}'),
             wrapperManager.resourceInstance,
             wrapperManager.resourceInstanceMethod,
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException

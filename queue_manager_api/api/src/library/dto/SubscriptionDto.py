@@ -13,8 +13,8 @@ class SubscriptionRequestDto:
         onErrorUrl = None,
         maxTries = None,
         backOff = None,
-        queue = None,
-        headers = None
+        headers = None,
+        queue = None
     ):
         self.key = key
         self.url = url
@@ -34,8 +34,8 @@ class SubscriptionResponseDto:
         onErrorUrl = None,
         maxTries = None,
         backOff = None,
-        queue = None,
-        headers = None
+        headers = None,
+        queue = None
     ):
         self.key = key
         self.url = url

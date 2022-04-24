@@ -1,4 +1,5 @@
-from python_helper import ObjectHelper
+from python_helper import Constant as c
+from python_helper import ObjectHelper, StringHelper
 from python_framework import SqlAlchemyProxy as sap
 from python_framework import ConverterStatic
 
@@ -40,7 +41,7 @@ class SubscriptionModel(MODEL):
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
-        self.headers = ConverterStatic.getValueOrDefault(str(headers), SubscriptionConstant.DEFAULT_HEADERS)
+        self.headers = ConverterStatic.getValueOrDefault(StringHelper.prettyJson(headers).replace(c.NEW_LINE, c.SPACE), SubscriptionConstant.DEFAULT_HEADERS)
         self.setQueue(queue, queueId=queueId)
 
 
