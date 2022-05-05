@@ -126,6 +126,7 @@ def MessageListenerMethod(
         def innerResourceInstanceMethod(*args, **kwargs):
             args = wrapperManager.addResourceInFrontOfArgs(args)
             messageAsJson = FlaskUtil.safellyGetRequestBody()
+            completeResponse = None
             if not wrapperManager.muteLogs:
                 log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{FlaskUtil.safellyGetVerb()}{c.SPACE_DASH_SPACE}{FlaskUtil.safellyGetUrl()}''')
                 try:
@@ -172,7 +173,7 @@ def MessageListenerMethod(
                     wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCall, *listennerArgs)
                 else:
                     completeResponse = resolveListenerCall(*listennerArgs)
-                if HttpStatus.BAD_REQUEST < completeResponse[-1]:
+                if ObjectHelper.isEmpty(completeResponse) or HttpStatus.BAD_REQUEST < completeResponse[-1]:
                     completeResponse = [
                         MessageDto.MessageCreationResponseDto(
                             key = messageAsJson.get(MessageConstant.MESSAGE_KEY_KEY),

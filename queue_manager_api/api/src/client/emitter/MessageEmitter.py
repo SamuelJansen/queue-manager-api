@@ -21,7 +21,7 @@ import Message
 class MessageEmitter:
 
     @MessageEmitterMethod(
-        queueKey = MessageConfig.EMITTER_MESSAGE_QUEUE_KEY,
+        queueKey = MessageConfig.SOME_UNIQUE_QUEUE_KEY,
         requestClass=[MessageDto.MessageRequestDto],
         responseClass=[MessageDto.MessageRequestDto]
         , logRequest = True
