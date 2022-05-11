@@ -1,6 +1,5 @@
 from distutils.core import setup
 import os
-from python_helper import StringHelper
 
 print('''Installation on linux, run:
 sudo apt install libpq-dev python3-dev
@@ -16,9 +15,9 @@ sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 
 VERSION = '0.0.32'
 
-NAME = 'queue_manager_api'
-PACKAGE_NAME = NAME
-REPOSITORY_NAME = StringHelper.toSnakeCase(NAME)
+SNAKE_CASE_NAME = 'queue_manager_api'
+PACKAGE_NAME = SNAKE_CASE_NAME
+REPOSITORY_NAME = SNAKE_CASE_NAME
 URL = f'https://github.com/SamuelJansen/{REPOSITORY_NAME}/'
 API = 'api'
 SRC = 'src'
@@ -28,7 +27,7 @@ URL = f'https://github.com/SamuelJansen/{REPOSITORY_NAME}/'
 OS_SEPARATOR = os.path.sep
 
 setup(
-    name = NAME,
+    name = SNAKE_CASE_NAME,
     packages = [
         PACKAGE_NAME,
         f'{PACKAGE_NAME}{OS_SEPARATOR}{API}',
