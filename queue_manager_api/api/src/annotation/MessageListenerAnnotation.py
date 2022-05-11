@@ -21,9 +21,9 @@ try:
     import AnnotationUtil
     import MessageDto
 except:
-    from queue_manager_api.api.src.library.constant import MessageConstant
-    from queue_manager_api.api.src.library.util import AnnotationUtil
-    from queue_manager_api.api.src.library.dto import MessageDto
+    from queue_manager_api.api.src.constant import MessageConstant
+    from queue_manager_api.api.src.util import AnnotationUtil
+    from queue_manager_api.api.src.dto import MessageDto
 
 
 DEFAULT_TIMEOUT = 2

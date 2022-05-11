@@ -5,7 +5,7 @@ from python_helper import log, ReflectionHelper
 try:
     import ThreadUtil
 except:
-    from queue_manager_api.api.src.library.util import ThreadUtil
+    from queue_manager_api.api.src.util import ThreadUtil
 
 
 DEFAULT_TIMEOUT = 20

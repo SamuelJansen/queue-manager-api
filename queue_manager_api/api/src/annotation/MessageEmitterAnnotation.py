@@ -18,13 +18,14 @@ from python_framework import (
 
 try:
     import AnnotationUtil
-    import HttpEmitterConstant, MessageConstant
+    import HttpEmitterConstant, MessageConstant, EmitterConstant
     import MessageDto
 except:
-    from queue_manager_api.api.src.library.util import AnnotationUtil
-    from queue_manager_api.api.src.library.dto import MessageDto
-    from queue_manager_api.api.src.library.constant import HttpEmitterConstant
-    from queue_manager_api.api.src.library.constant import MessageConstant
+    from queue_manager_api.api.src.util import AnnotationUtil
+    from queue_manager_api.api.src.dto import MessageDto
+    from queue_manager_api.api.src.constant import EmitterConstant
+    from queue_manager_api.api.src.constant import HttpEmitterConstant
+    from queue_manager_api.api.src.constant import MessageConstant
 
 
 DEFAULT_TIMEOUT = 2
@@ -33,7 +34,7 @@ DEFAULT_TIMEOUT = 2
 @Function
 def MessageEmitter(
     *resourceArgs,
-    url = c.SLASH,
+    url = EmitterConstant.URL,
     headers = None,
     timeout = DEFAULT_TIMEOUT,
     logRequest = False,

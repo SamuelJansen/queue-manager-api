@@ -3,7 +3,7 @@ from python_framework import ConverterStatic, Serializer
 try:
     import SubscriptionConstant
 except:
-    from queue_manager_api.api.src.library.constant import SubscriptionConstant
+    from queue_manager_api.api.src.constant import SubscriptionConstant
 
 
 class SubscriptionRequestDto:

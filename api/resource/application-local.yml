@@ -8,8 +8,11 @@ api:
         settings:
             check_same_thread: False
 
-match:
-    duration-in-minutes: 1
+queue:
+    message:
+        emitter:
+            url: ${QUEUE_MESSAGE_EMITTER_BASE_URL}:${api.server.port}${api.server.base-url}/message/emitter
+
 
 swagger:
     schemes: [${api.server.scheme}] ###- bug
