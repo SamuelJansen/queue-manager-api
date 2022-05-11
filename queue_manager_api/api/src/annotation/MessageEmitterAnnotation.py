@@ -123,7 +123,7 @@ class EmitterMethodConfig:
 @Function
 def MessageEmitterMethod(
     *methodArgs,
-    url = c.BLANK,
+    url = EmitterConstant.URL,
     headers = None,
     requestHeaderClass = None,
     requestParamClass = None,
