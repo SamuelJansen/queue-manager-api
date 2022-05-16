@@ -4,8 +4,6 @@ from python_framework import (
     FlaskManager,
     GlobalException,
     ConverterStatic,
-    Listener,
-    ListenerMethod,
     FlaskUtil,
     Serializer,
     ConfigurationKeyConstant,
@@ -122,13 +120,15 @@ def MessageListenerMethod(
         listenerUrl = f'{wrapperManager.api.baseUrl}{resourceInstanceMethodUrl}'
         if listenerUrl.endswith(c.SLASH):
             listenerUrl = listenerUrl[:-1]
-        @wrapperManager.api.app.route(listenerUrl, methods=['POST'], endpoint=f'{resourceInstanceMethod.__qualname__}')
+        @wrapperManager.api.app.route(listenerUrl, methods=[HttpDomain.Verb.POST], endpoint=f'{resourceInstanceMethod.__qualname__}')
         def innerResourceInstanceMethod(*args, **kwargs):
             args = wrapperManager.addResourceInFrontOfArgs(args)
             messageAsJson = FlaskUtil.safellyGetRequestBody()
             completeResponse = None
             if not wrapperManager.muteLogs:
-                log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{FlaskUtil.safellyGetVerb()}{c.SPACE_DASH_SPACE}{FlaskUtil.safellyGetUrl()}''')
+                requestUrl = FlaskUtil.safellyGetUrl()
+                requestVerb = FlaskUtil.safellyGetVerb()
+                log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{requestVerb}{c.SPACE_DASH_SPACE}{requestUrl}''')
                 try:
                     messageCreationRequestDto = Serializer.getObjectAsDictionary(Serializer.convertFromJsonToObject(messageAsJson, MessageDto.MessageCreationRequestDto))
                     log.prettyPython(wrapperManager.resourceInstanceMethod, f'{LogConstant.LISTENER_SPACE}Message data', messageCreationRequestDto, logLevel=log.INFO)
@@ -161,6 +161,8 @@ def MessageListenerMethod(
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
+                    requestUrl,
+                    requestVerb,
                     FlaskUtil.safellyGetHeaders(),
                     FlaskUtil.safellyGetArgs(),
                     messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
@@ -234,6 +236,8 @@ def resolveListenerCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
+    requestUrl,
+    requestVerb,
     requestHeaders,
     requestParams,
     requestBody,
@@ -246,53 +250,59 @@ def resolveListenerCall(
     context = HttpDomain.LISTENER_CONTEXT
 
 ):
-    completeResponse = None
-    try:
-        completeResponse = FlaskManager.handleAnyControllerMethodRequest(
-            args,
-            kwargs,
-            consumes,
-            wrapperManager.resourceInstance,
-            wrapperManager.resourceInstanceMethod,
-            contextRequired,
-            apiKeyRequired,
-            roleRequired,
-            requestHeaderClass,
-            requestParamClass,
-            requestClass,
-            wrapperManager.shouldLogRequest(),
-            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-            verb = verb,
-            requestHeaders = requestHeaders,
-            requestParams = requestParams,
-            requestBody = requestBody,
-            logRequestMessage = logRequestMessage
-        )
-        FlaskManager.validateCompleteResponse(responseClass, completeResponse)
-    except Exception as exception:
-        log.log(resolveListenerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
-        completeResponse = FlaskManager.getCompleteResponseByException(
-            exception,
-            wrapperManager.resourceInstance,
-            wrapperManager.resourceInstanceMethod,
-            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-            context = context
-        )
-    try:
-        status = HttpStatus.map(completeResponse[-1])
-        additionalResponseHeaders = completeResponse[1]
-        if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
-            additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
-        if ObjectHelper.isNotNone(defaultResponseHeaders):
-            additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
-        responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
-        completeResponse = [responseBody, additionalResponseHeaders, status]
-    except Exception as exception:
-        log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
-        completeResponse = getCompleteResponseByException(
-            Exception(f'Not possible to handle complete response{c.DOT_SPACE_CAUSE}{str(exception)}'),
-            wrapperManager.resourceInstance,
-            wrapperManager.resourceInstanceMethod,
-            resourceInstanceMethodMuteStacktraceOnBusinessRuleException
-        )
-    return completeResponse
+    with wrapperManager.api.app.test_request_context(
+        path = requestUrl,
+        method = requestVerb,
+        data = requestBody, ###- json.dumps(requestBody),
+        headers = requestHeaders
+    ):
+        completeResponse = None
+        try:
+            completeResponse = FlaskManager.handleAnyControllerMethodRequest(
+                args,
+                kwargs,
+                consumes,
+                wrapperManager.resourceInstance,
+                wrapperManager.resourceInstanceMethod,
+                contextRequired,
+                apiKeyRequired,
+                roleRequired,
+                requestHeaderClass,
+                requestParamClass,
+                requestClass,
+                wrapperManager.shouldLogRequest(),
+                resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+                verb = requestVerb,
+                requestHeaders = requestHeaders,
+                requestParams = requestParams,
+                requestBody = requestBody,
+                logRequestMessage = logRequestMessage
+            )
+            FlaskManager.validateCompleteResponse(responseClass, completeResponse)
+        except Exception as exception:
+            log.log(resolveListenerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
+            completeResponse = FlaskManager.getCompleteResponseByException(
+                exception,
+                wrapperManager.resourceInstance,
+                wrapperManager.resourceInstanceMethod,
+                resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+                context = context
+            )
+        try:
+            status = HttpStatus.map(completeResponse[-1])
+            additionalResponseHeaders = completeResponse[1]
+            if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
+                additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
+            if ObjectHelper.isNotNone(defaultResponseHeaders):
+                additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
+            responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
+            completeResponse = [responseBody, additionalResponseHeaders, status]
+        except Exception as exception:
+            log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
+            completeResponse = getCompleteResponseByException(
+                Exception(f'Not possible to handle complete response{c.DOT_SPACE_CAUSE}{str(exception)}'),
+                wrapperManager.resourceInstance,
+                wrapperManager.resourceInstanceMethod,
+                resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+            )
+        return completeResponse

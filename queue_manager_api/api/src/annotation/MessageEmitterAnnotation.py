@@ -4,8 +4,6 @@ from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringH
 from python_framework import (
     FlaskManager,
     ConverterStatic,
-    Emitter,
-    EmitterMethod,
     FlaskUtil,
     ClientUtil,
     LogConstant,
@@ -263,6 +261,13 @@ def MessageEmitterMethod(
                 requestHeaderClass,
                 requestParamClass,
                 requestClass,
+
+                # requestUrl,
+                # requestVerb,
+                # FlaskUtil.safellyGetHeaders(),
+                # FlaskUtil.safellyGetArgs(),
+                # messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
+
                 responseClass,
                 produces,
                 httpClientResolversMap,
@@ -301,6 +306,13 @@ def resolveEmitterCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
+
+    # requestUrl,
+    # requestVerb,
+    # requestHeaders,
+    # requestParams,
+    # requestBody,
+
     responseClass,
     produces,
     httpClientResolversMap,
@@ -309,6 +321,12 @@ def resolveEmitterCall(
     resourceMethodGroupKey,
     resourceMethodMessageKey
 ):
+    # with with testapp.test_request_context(
+    #     path = requestUrl,
+    #     method = verb,
+    #     data = requestBody ###- json.dumps(requestBody),
+    #     headers = requestHeaders
+    # ):
     resourceMethodResponse = None
     completeResponse = None
     try :
