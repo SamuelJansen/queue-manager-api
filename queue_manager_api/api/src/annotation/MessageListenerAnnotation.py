@@ -1,3 +1,5 @@
+import json
+
 from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
 from python_framework import (
@@ -245,7 +247,6 @@ def resolveListenerCall(
     defaultResponseHeaders,
     consumes,
     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-    verb = HttpDomain.Verb.POST,
     logRequestMessage = LogConstant.LISTENER_REQUEST,
     context = HttpDomain.LISTENER_CONTEXT
 
@@ -253,7 +254,7 @@ def resolveListenerCall(
     with wrapperManager.api.app.test_request_context(
         path = requestUrl,
         method = requestVerb,
-        data = requestBody, ###- json.dumps(requestBody),
+        json = requestBody, ###- requestBody, ###-
         headers = requestHeaders
     ):
         completeResponse = None
