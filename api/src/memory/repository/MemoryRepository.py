@@ -75,10 +75,10 @@ class MemoryRepository:
         queueKeyList = self.getQueueKeyIterator()
         if ObjectHelper.isEmpty(queueKeyList):
             return []
-        for queueKey in queueKeyList:
+        for queueKey in self.getQueueKeyIterator():
             messageList = [
                 self.getMessage(queueKey, messageKey)
-                for messageKey in self.getMessageKeyIterator(queueKeyList[0])
+                for messageKey in self.getMessageKeyIterator(queueKey)
                 if self.messageStatusIn(queueKey, messageKey, statusList)
             ]
             if 0 < len(messageList):
@@ -150,7 +150,6 @@ class MemoryRepository:
         ]
         self.removeEmptyQueues()
         return emissionList
-        # return functools.reduce(operator.iconcat, emissionListCollection, [])
 
 
     def removeEmptyQueues(self):
