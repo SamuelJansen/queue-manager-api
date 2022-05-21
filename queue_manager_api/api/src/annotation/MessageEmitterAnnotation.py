@@ -252,16 +252,23 @@ def MessageEmitterMethod(
             resourceMethodConfig.logRequest = wrapperManager.shouldLogRequest()
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
             messageCreationRequestKey = kwargs.get(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
-            messageCreationRequestGroupKey = kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
-            messageCreationRequestHeaders = kwargs.get(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
                 messageCreationRequestKey = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
-            messageCreationRequest = MessageDto.MessageCreationRequestDto(
-                key = messageCreationRequestKey,
-                queueKey = resourceMethodQueueKey,
-                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, messageCreationRequestKey)
+            messageCreationRequestGroupKey = ConverterStatic.getValueOrDefault(
+                kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
+                messageCreationRequestKey
             )
-            completeResponse = [messageCreationRequest, {}, HttpStatus.CREATED]
+            messageCreationRequestHeaders = kwargs.get(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME, {})
+
+            completeResponse = [
+                MessageDto.MessageCreationRequestDto(
+                    key = messageCreationRequestKey,
+                    queueKey = resourceMethodQueueKey,
+                    groupKey = messageCreationRequestGroupKey
+                ),
+                {},
+                HttpStatus.CREATED
+            ]
 
             emitterArgs = (
                 args,
@@ -313,7 +320,10 @@ def MessageEmitterMethod(
                     condition = True,
                     logLevel = log.INFO
                 )
-            return messageCreationRequest
+            if returnOnlyBody:
+                return completeResponse[0]
+            else:
+                return completeResponse
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
         innerResourceInstanceMethod.url = resourceMethodConfig.url
         innerResourceInstanceMethod.headers = resourceMethodConfig.headers

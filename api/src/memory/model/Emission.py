@@ -63,8 +63,8 @@ class Emission:
         return None if ObjectHelper.isNone(self.message) else self.message.originKey
 
 
-    def getHeaders(self, message=None):
-        return dict() if ObjectHelper.isEmpty(self.getMessage(message=message)) else ConverterStatic.getValueOrDefault(self.message.headers, dict())
+    def getHeaders(self):
+        return dict() if ObjectHelper.isNone(self.message) else ConverterStatic.getValueOrDefault(self.message.headers, dict())
 
 
     def getContent(self):
