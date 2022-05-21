@@ -137,8 +137,8 @@ def MessageEmitterMethod(
     muteLogs = False,
     debugIt = False,
     muteStacktraceOnBusinessRuleException = True,
-    messageHeaders = None,
     queueKey = None,
+    messageHeaders = None,
     **methodKwargs
 ):
     resourceMethodConfig = EmitterMethodConfig(
@@ -261,7 +261,8 @@ def MessageEmitterMethod(
                 queueKey = resourceMethodQueueKey,
                 groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
             )
-            wrapperManager.resourceInstance.queueManager.runInAThread(
+
+            emitterArgs = (
                 resolveEmitterCall,
                 args,
                 kwargs,
@@ -269,13 +270,6 @@ def MessageEmitterMethod(
                 requestHeaderClass,
                 requestParamClass,
                 requestClass,
-
-                FlaskUtil.safellyGetUrl(),
-                FlaskUtil.safellyGetVerb(),
-                FlaskUtil.safellyGetHeaders(),
-                FlaskUtil.safellyGetArgs(),
-                FlaskUtil.safellyGetJson(),
-
                 responseClass,
                 produces,
                 httpClientResolversMap,
@@ -285,6 +279,20 @@ def MessageEmitterMethod(
                 messageCreationRequest.groupKey,
                 resourceMethodMessageHeaders
             )
+
+            currentRequestUrl = FlaskUtil.safellyGetUrl()
+            if ObjectHelper.isNotNone(currentRequestUrl):
+                with wrapperManager.api.app.test_request_context(
+                    path = currentRequestUrl,
+                    method = FlaskUtil.safellyGetVerb(),
+                    data = FlaskUtil.safellyGetJson(),
+                    headers = FlaskUtil.safellyGetHeaders()
+                    ###- FlaskUtil.safellyGetArgs()
+                ):
+                    rapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+            else:
+                rapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+
             return messageCreationRequest
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
         innerResourceInstanceMethod.url = resourceMethodConfig.url
@@ -315,13 +323,6 @@ def resolveEmitterCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
-
-    requestUrl,
-    requestVerb,
-    requestHeaders,
-    requestParams,
-    requestBody,
-
     responseClass,
     produces,
     httpClientResolversMap,
@@ -331,12 +332,7 @@ def resolveEmitterCall(
     messageCreationRequestGroupKey,
     resourceMethodMessageHeaders
 ):
-    with wrapperManager.api.app.test_request_context(
-        path = requestUrl,
-        method = requestVerb,
-        data = requestBody,
-        headers = requestHeaders
-    ):
+
         resourceMethodResponse = None
         completeResponse = None
         try :
