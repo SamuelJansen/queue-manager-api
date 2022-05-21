@@ -242,14 +242,14 @@ def resolveListenerCallWithinAContext(
     consumes,
     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
 
-    logRequestMessage = LogConstant.LISTENER_REQUEST,
-    context = HttpDomain.LISTENER_CONTEXT,
-
     requestUrl,
     requestVerb,
     requestHeaders,
     requestParams,
-    requestBody
+    requestBody,
+
+    logRequestMessage = LogConstant.LISTENER_REQUEST,
+    context = HttpDomain.LISTENER_CONTEXT
 ):
     ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
     with wrapperManager.api.app.test_request_context(
