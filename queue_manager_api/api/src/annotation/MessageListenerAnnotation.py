@@ -163,18 +163,19 @@ def MessageListenerMethod(
                     requestHeaderClass,
                     requestParamClass,
                     requestClass,
-                    requestUrl,
-                    requestVerb,
-                    FlaskUtil.safellyGetHeaders(),
-                    FlaskUtil.safellyGetArgs(),
-                    messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
                     responseClass,
                     responseHeaders,
                     consumes,
                     resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+
+                    requestUrl,
+                    requestVerb,
+                    FlaskUtil.safellyGetHeaders(),
+                    FlaskUtil.safellyGetArgs(),
+                    messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {})
                 )
                 if resourceInstanceMethodRunInAThread:
-                    wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCall, *listennerArgs)
+                    wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCallWithinAContext, *listennerArgs)
                 else:
                     completeResponse = resolveListenerCall(*listennerArgs)
                 if ObjectHelper.isEmpty(completeResponse) or HttpStatus.BAD_REQUEST < completeResponse[-1]:
@@ -226,6 +227,63 @@ def MessageListenerMethod(
     return innerMethodWrapper
 
 
+def resolveListenerCallWithinAContext(
+    args,
+    kwargs,
+    wrapperManager,
+    roleRequired,
+    apiKeyRequired,
+    contextRequired,
+    requestHeaderClass,
+    requestParamClass,
+    requestClass,
+    responseClass,
+    defaultResponseHeaders,
+    consumes,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
+    logRequestMessage = LogConstant.LISTENER_REQUEST,
+    context = HttpDomain.LISTENER_CONTEXT,
+
+    requestUrl,
+    requestVerb,
+    requestHeaders,
+    requestParams,
+    requestBody
+):
+    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
+    with wrapperManager.api.app.test_request_context(
+        path = requestUrl,
+        method = requestVerb,
+        json = requestBody,
+        headers = requestHeaders,
+        query_string = requestParams
+    ):
+        resolveListenerCall(
+            args,
+            kwargs,
+            wrapperManager,
+            roleRequired,
+            apiKeyRequired,
+            contextRequired,
+            requestHeaderClass,
+            requestParamClass,
+            requestClass,
+            responseClass,
+            defaultResponseHeaders,
+            consumes,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
+            requestUrl,
+            requestVerb,
+            requestHeaders,
+            requestParams,
+            requestBody,
+
+            logRequestMessage = LogConstant.LISTENER_REQUEST,
+            context = HttpDomain.LISTENER_CONTEXT
+        )
+
 
 
 def resolveListenerCall(
@@ -238,74 +296,67 @@ def resolveListenerCall(
     requestHeaderClass,
     requestParamClass,
     requestClass,
+    responseClass,
+    defaultResponseHeaders,
+    consumes,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
     requestUrl,
     requestVerb,
     requestHeaders,
     requestParams,
     requestBody,
-    responseClass,
-    defaultResponseHeaders,
-    consumes,
-    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
     logRequestMessage = LogConstant.LISTENER_REQUEST,
     context = HttpDomain.LISTENER_CONTEXT
-
 ):
-    with wrapperManager.api.app.test_request_context(
-        path = requestUrl,
-        method = requestVerb,
-        json = requestBody,
-        headers = requestHeaders,
-        query_string = requestParams
-        ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-    ):
-        completeResponse = None
-        try:
-            completeResponse = FlaskManager.handleAnyControllerMethodRequest(
-                args,
-                kwargs,
-                consumes,
-                wrapperManager.resourceInstance,
-                wrapperManager.resourceInstanceMethod,
-                contextRequired,
-                apiKeyRequired,
-                roleRequired,
-                requestHeaderClass,
-                requestParamClass,
-                requestClass,
-                wrapperManager.shouldLogRequest(),
-                resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                verb = requestVerb,
-                requestHeaders = requestHeaders,
-                requestParams = requestParams,
-                requestBody = requestBody,
-                logRequestMessage = logRequestMessage
-            )
-            FlaskManager.validateCompleteResponse(responseClass, completeResponse)
-        except Exception as exception:
-            log.log(resolveListenerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
-            completeResponse = FlaskManager.getCompleteResponseByException(
-                exception,
-                wrapperManager.resourceInstance,
-                wrapperManager.resourceInstanceMethod,
-                resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                context = context
-            )
-        try:
-            status = HttpStatus.map(completeResponse[-1])
-            additionalResponseHeaders = completeResponse[1]
-            if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
-                additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
-            if ObjectHelper.isNotNone(defaultResponseHeaders):
-                additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
-            responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
-            completeResponse = [responseBody, additionalResponseHeaders, status]
-        except Exception as exception:
-            log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
-            completeResponse = getCompleteResponseByException(
-                Exception(f'Not possible to handle complete response{c.DOT_SPACE_CAUSE}{str(exception)}'),
-                wrapperManager.resourceInstance,
-                wrapperManager.resourceInstanceMethod,
-                resourceInstanceMethodMuteStacktraceOnBusinessRuleException
-            )
-        return completeResponse
+    completeResponse = None
+    try:
+        completeResponse = FlaskManager.handleAnyControllerMethodRequest(
+            args,
+            kwargs,
+            consumes,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            contextRequired,
+            apiKeyRequired,
+            roleRequired,
+            requestHeaderClass,
+            requestParamClass,
+            requestClass,
+            wrapperManager.shouldLogRequest(),
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            verb = requestVerb,
+            requestHeaders = requestHeaders,
+            requestParams = requestParams,
+            requestBody = requestBody,
+            logRequestMessage = logRequestMessage
+        )
+        FlaskManager.validateCompleteResponse(responseClass, completeResponse)
+    except Exception as exception:
+        log.log(resolveListenerCall, 'Failure at controller method execution. Getting complete response as exception', exception=exception, muteStackTrace=True)
+        completeResponse = FlaskManager.getCompleteResponseByException(
+            exception,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            context = context
+        )
+    try:
+        status = HttpStatus.map(completeResponse[-1])
+        additionalResponseHeaders = completeResponse[1]
+        if ObjectHelper.isNotNone(wrapperManager.resourceInstance.responseHeaders):
+            additionalResponseHeaders = {**wrapperManager.resourceInstance.responseHeaders, **additionalResponseHeaders}
+        if ObjectHelper.isNotNone(defaultResponseHeaders):
+            additionalResponseHeaders = {**defaultResponseHeaders, **additionalResponseHeaders}
+        responseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : status.enumName}
+        completeResponse = [responseBody, additionalResponseHeaders, status]
+    except Exception as exception:
+        log.failure(resolveListenerCall, f'Failure while parsing complete response: {completeResponse}. Returning simplified version of it', exception, muteStackTrace=True)
+        completeResponse = getCompleteResponseByException(
+            Exception(f'Not possible to handle complete response{c.DOT_SPACE_CAUSE}{str(exception)}'),
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+        )
+    return completeResponse

@@ -261,9 +261,9 @@ def MessageEmitterMethod(
                 queueKey = resourceMethodQueueKey,
                 groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
             )
+            completeResponse = [messageCreationRequest, {}, HttpStatus.CREATED]
 
             emitterArgs = (
-                resolveEmitterCall,
                 args,
                 kwargs,
                 wrapperManager,
@@ -282,19 +282,36 @@ def MessageEmitterMethod(
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
             if ObjectHelper.isNotNone(currentRequestUrl):
-                with wrapperManager.api.app.test_request_context(
-                    path = currentRequestUrl,
-                    method = FlaskUtil.safellyGetVerb(),
-                    json = FlaskUtil.safellyGetRequestBody(),
-                    headers = FlaskUtil.safellyGetHeaders(),
-                    query_string = FlaskUtil.safellyGetArgs()
-                    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-                ):
-                    wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+                wrapperManager.resourceInstance.queueManager.runInAThread(
+                    *(
+                        resolveEmitterCallWithinAContext,
+                        *emitterArgs,
+                        currentRequestUrl,
+                        FlaskUtil.safellyGetVerb(),
+                        FlaskUtil.safellyGetHeaders(),
+                        FlaskUtil.safellyGetArgs(),
+                        FlaskUtil.safellyGetRequestBody()
+                    )
+                )
             else:
                 log.debug(wrapperManager.resourceInstanceMethod, f'''The context "{currentRequestUrl}" didnt't started properlly. Running without a context by default''')
-                wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+                wrapperManager.resourceInstance.queueManager.runInAThread(resolveEmitterCall, *emitterArgs)
 
+            if wrapperManager.shouldLogResponse():
+                resourceMethodResponseStatus = completeResponse[-1]
+                resourceMethodResponseHeaders = completeResponse[1]
+                resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
+                log.prettyJson(
+                    wrapperManager.resourceInstanceMethod,
+                    LogConstant.EMITTER_RESPONSE,
+                    {
+                        'headers': resourceMethodResponseHeaders,
+                        'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),
+                        'status': resourceMethodResponseStatus
+                    },
+                    condition = True,
+                    logLevel = log.INFO
+                )
             return messageCreationRequest
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
         innerResourceInstanceMethod.url = resourceMethodConfig.url
@@ -318,6 +335,39 @@ def MessageEmitterMethod(
     return innerMethodWrapper
 
 
+def resolveEmitterCallWithinAContext(
+    args,
+    kwargs,
+    wrapperManager,
+    requestHeaderClass,
+    requestParamClass,
+    requestClass,
+    responseClass,
+    produces,
+    httpClientResolversMap,
+    returnOnlyBody,
+    debugIt,
+    messageCreationRequestKey,
+    messageCreationRequestGroupKey,
+    messageCreationRequestHeaders,
+
+    requestUrl,
+    requestVerb,
+    requestHeaders,
+    requestParams,
+    requestBody
+):
+    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
+    with wrapperManager.api.app.test_request_context(
+        path = requestUrl,
+        method = requestVerb,
+        headers = requestHeaders,
+        query_string = requestParams,
+        json = requestBody
+    ):
+        resolveEmitterCall(*emitterArgs)
+
+
 def resolveEmitterCall(
     args,
     kwargs,
@@ -334,10 +384,10 @@ def resolveEmitterCall(
     messageCreationRequestGroupKey,
     messageCreationRequestHeaders
 ):
-
-        resourceMethodResponse = None
-        completeResponse = None
-        try :
+    resourceMethodResponse = None
+    completeResponse = None
+    try:
+        try:
             FlaskManager.validateKwargs(
                 kwargs,
                 wrapperManager.resourceInstance,
@@ -354,11 +404,11 @@ def resolveEmitterCall(
                     messageKey = messageCreationRequestKey if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
                         emitterEvent.kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME),
                         messageCreationRequestKey
-                    ),
+                    )
                     groupKey = messageCreationRequestGroupKey if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
                         emitterEvent.kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
                         messageCreationRequestGroupKey
-                    ),
+                    )
                     messageHeaders = messageCreationRequestHeaders if MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else {
                         **ConverterStatic.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict()),
                         **ConverterStatic.getValueOrDefault(messageCreationRequestHeaders, dict())
@@ -403,22 +453,31 @@ def resolveEmitterCall(
                 wrapperManager.resourceInstanceMethod,
                 context = HttpDomain.EMITTER_CONTEXT
             )
-        if wrapperManager.shouldLogResponse():
-            resourceMethodResponseStatus = completeResponse[-1]
-            resourceMethodResponseHeaders = completeResponse[1]
-            resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
-            log.prettyJson(
-                wrapperManager.resourceInstanceMethod,
-                LogConstant.EMITTER_RESPONSE,
-                {
-                    'headers': resourceMethodResponseHeaders,
-                    'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),
-                    'status': resourceMethodResponseStatus
-                },
-                condition = True,
-                logLevel = log.INFO
-            )
-        if returnOnlyBody:
-            return completeResponse[0]
-        else:
-            return completeResponse
+    except Exception as exception:
+        completeResponse = FlaskManager.getCompleteResponseByException(
+            exception,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            context = HttpDomain.EMITTER_CONTEXT
+        )
+
+    if wrapperManager.shouldLogResponse():
+        resourceMethodResponseStatus = completeResponse[-1]
+        resourceMethodResponseHeaders = completeResponse[1]
+        resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
+        log.prettyJson(
+            wrapperManager.resourceInstanceMethod,
+            LogConstant.EMITTER_RESPONSE,
+            {
+                'headers': resourceMethodResponseHeaders,
+                'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),
+                'status': resourceMethodResponseStatus
+            },
+            condition = True,
+            logLevel = log.INFO
+        )
+    if returnOnlyBody:
+        return completeResponse[0]
+    else:
+        return completeResponse
