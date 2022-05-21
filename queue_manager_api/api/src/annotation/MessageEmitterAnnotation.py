@@ -255,13 +255,11 @@ def MessageEmitterMethod(
             messageCreationRequestGroupKey = kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
             messageCreationRequestHeaders = kwargs.get(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
-                key = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
-            else:
-                key = messageCreationRequestKey
+                messageCreationRequestKey = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             messageCreationRequest = MessageDto.MessageCreationRequestDto(
-                key = key,
+                key = messageCreationRequestKey,
                 queueKey = resourceMethodQueueKey,
-                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
+                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, messageCreationRequestKey)
             )
             completeResponse = [messageCreationRequest, {}, HttpStatus.CREATED]
 
