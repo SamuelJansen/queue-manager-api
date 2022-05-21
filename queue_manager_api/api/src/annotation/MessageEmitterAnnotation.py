@@ -274,7 +274,7 @@ def MessageEmitterMethod(
                 FlaskUtil.safellyGetVerb(),
                 FlaskUtil.safellyGetHeaders(),
                 FlaskUtil.safellyGetArgs(),
-                messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
+                FlaskUtil.safellyGetJson(),
 
                 responseClass,
                 produces,
