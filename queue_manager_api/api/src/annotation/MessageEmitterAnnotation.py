@@ -270,8 +270,8 @@ def MessageEmitterMethod(
                 requestParamClass,
                 requestClass,
 
-                requestUrl,
-                requestVerb,
+                FlaskUtil.safellyGetUrl(),
+                FlaskUtil.safellyGetVerb(),
                 FlaskUtil.safellyGetHeaders(),
                 FlaskUtil.safellyGetArgs(),
                 messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
