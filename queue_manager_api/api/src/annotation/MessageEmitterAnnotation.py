@@ -175,6 +175,7 @@ def MessageEmitterMethod(
             resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_EMITTER_MUTE_LOGS,
             resourceTimeoutConfigKey = ConfigurationKeyConstant.API_EMITTER_TIMEOUT
         )
+        resourceInstanceMethodMuteStacktraceOnBusinessRuleException = muteStacktraceOnBusinessRuleException
         resourceMethodMessageHeaders = messageHeaders
         resourceMethodQueueKey = queueKey
         resourceMethodConfig.wrapperManager = wrapperManager
@@ -278,7 +279,8 @@ def MessageEmitterMethod(
                 debugIt,
                 messageCreationRequestKey,
                 messageCreationRequestGroupKey,
-                messageCreationRequestHeaders
+                messageCreationRequestHeaders,
+                resourceInstanceMethodMuteStacktraceOnBusinessRuleException
             )
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
@@ -351,6 +353,7 @@ def resolveEmitterCallWithinAContext(
     messageCreationRequestKey,
     messageCreationRequestGroupKey,
     messageCreationRequestHeaders,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
 
     requestUrl,
     requestVerb,
@@ -380,7 +383,8 @@ def resolveEmitterCallWithinAContext(
             debugIt,
             messageCreationRequestKey,
             messageCreationRequestGroupKey,
-            messageCreationRequestHeaders
+            messageCreationRequestHeaders,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException
         )
 
 
@@ -398,7 +402,8 @@ def resolveEmitterCall(
     debugIt,
     messageCreationRequestKey,
     messageCreationRequestGroupKey,
-    messageCreationRequestHeaders
+    messageCreationRequestHeaders,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException
 ):
     resourceMethodResponse = None
     completeResponse = None
