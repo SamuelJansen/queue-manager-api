@@ -366,7 +366,22 @@ def resolveEmitterCallWithinAContext(
         query_string = requestParams,
         json = requestBody
     ):
-        resolveEmitterCall(*emitterArgs)
+        resolveEmitterCall(
+            args,
+            kwargs,
+            wrapperManager,
+            requestHeaderClass,
+            requestParamClass,
+            requestClass,
+            responseClass,
+            produces,
+            httpClientResolversMap,
+            returnOnlyBody,
+            debugIt,
+            messageCreationRequestKey,
+            messageCreationRequestGroupKey,
+            messageCreationRequestHeaders
+        )
 
 
 def resolveEmitterCall(
