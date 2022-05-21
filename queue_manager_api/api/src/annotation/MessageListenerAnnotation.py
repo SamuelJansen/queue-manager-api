@@ -166,7 +166,7 @@ def MessageListenerMethod(
                     responseClass,
                     responseHeaders,
                     consumes,
-                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
 
                     requestUrl,
                     requestVerb,
