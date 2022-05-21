@@ -361,7 +361,7 @@ def resolveEmitterCall(
                     )
                     emitterEvent.kwargs[MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME] = emitterEvent.kwargs.get(
                         MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME,
-                        resourceMethodMessageHeaders
+                        messageCreationRequestHeaders
                     )
                     resourceMethodResponse = httpClientResolversMap.get(
                         emitterEvent.verb,
