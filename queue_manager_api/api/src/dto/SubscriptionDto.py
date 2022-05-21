@@ -1,4 +1,4 @@
-from python_framework import ConverterStatic, Serializer
+from python_framework import ConverterStatic
 
 try:
     import SubscriptionConstant
@@ -13,7 +13,6 @@ class SubscriptionRequestDto:
         onErrorUrl = None,
         maxTries = None,
         backOff = None,
-        headers = None,
         queue = None
     ):
         self.key = key
@@ -21,9 +20,6 @@ class SubscriptionRequestDto:
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
-        self.headers = Serializer.convertFromJsonToDictionary(
-            ConverterStatic.getValueOrDefault(headers, SubscriptionConstant.DEFAULT_HEADERS)
-        )
         self.queue = queue
 
 
@@ -42,7 +38,4 @@ class SubscriptionResponseDto:
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
-        self.headers = Serializer.convertFromJsonToDictionary(
-            ConverterStatic.getValueOrDefault(headers, SubscriptionConstant.DEFAULT_HEADERS)
-        )
         self.queue = queue

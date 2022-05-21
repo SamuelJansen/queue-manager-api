@@ -27,7 +27,6 @@ class EmissionService:
             onErrorTries = EmissionConstant.ZERO_TRIES,
             maxTries = subscription.maxTries,
             backOff = subscription.backOff,
-            headers = subscription.headers,
             state = ModelState.INSTANTIATED,
             message = message
         )
@@ -86,11 +85,11 @@ class EmissionService:
             emissionResponse = None
             if model.maxTries > model.tries:
                 model.tries += 1
-                emissionResponse = self.sendToDestiny(model.url, model.headers, messageRequestDto)
+                emissionResponse = self.sendToDestiny(model.url, model.getHeaders(), messageRequestDto)
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.PROCESSED)
             elif ObjectHelper.isNeitherNoneNorBlank(model.onErrorUrl):
                 model.onErrorTries += 1
-                emissionResponse = self.sendToDestiny(model.onErrorUrl, model.headers, messageRequestDto)
+                emissionResponse = self.sendToDestiny(model.onErrorUrl, model.getHeaders(), messageRequestDto)
                 self.mapper.emission.overrideModelStatus(model, ModelStatus.PROCESSED_WITH_ERRORS)
             return emissionResponse
         except Exception as exception:

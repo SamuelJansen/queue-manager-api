@@ -3,11 +3,13 @@ class MessageRequestDto:
         key = None,
         queueKey = None,
         groupKey = None,
+        headers = None,
         content = None
     ):
         self.key = key
         self.queueKey = queueKey
         self.groupKey = groupKey
+        self.headers = headers
         self.content = content
 
 

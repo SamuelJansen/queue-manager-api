@@ -18,7 +18,6 @@ class SubscriptionModel(MODEL):
     onErrorUrl = sap.Column(sap.String(sap.MEDIUM_STRING_SIZE))
     maxTries = sap.Column(sap.Integer(), nullable=False, default=SubscriptionConstant.DEFAULT_MAX_TRIES)
     backOff = sap.Column(sap.Float(precision=3), nullable=False, default=SubscriptionConstant.DEFAULT_BACKOFF)
-    headers = sap.Column(sap.String(sap.GIANT_STRING_SIZE), nullable=False, default=SubscriptionConstant.DEFAULT_HEADERS)
 
     queue, queueId = sap.getManyToOne(SUBSCRIPTION, QUEUE, MODEL)
 
@@ -41,7 +40,6 @@ class SubscriptionModel(MODEL):
         self.onErrorUrl = onErrorUrl
         self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
         self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
-        self.headers = ConverterStatic.getValueOrDefault(StringHelper.prettyJson(headers).replace(c.NEW_LINE, c.SPACE), SubscriptionConstant.DEFAULT_HEADERS)
         self.setQueue(queue, queueId=queueId)
 
 

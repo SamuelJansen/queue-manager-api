@@ -15,4 +15,4 @@ class MessageController:
         , logResponse = True
     )
     def post(self, dto):
-        return self.service.message.acceptWithoutValidation(dto), HttpStatus.ACCEPTED
+        return self.service.message.accept(dto), HttpStatus.ACCEPTED

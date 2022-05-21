@@ -137,6 +137,7 @@ def MessageEmitterMethod(
     muteLogs = False,
     debugIt = False,
     muteStacktraceOnBusinessRuleException = True,
+    messageHeaders = None,
     queueKey = None,
     **methodKwargs
 ):
@@ -173,6 +174,7 @@ def MessageEmitterMethod(
             resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_EMITTER_MUTE_LOGS,
             resourceTimeoutConfigKey = ConfigurationKeyConstant.API_EMITTER_TIMEOUT
         )
+        resourceMethodMessageHeaders = messageHeaders
         resourceMethodQueueKey = queueKey
         resourceMethodConfig.wrapperManager = wrapperManager
         def post(
@@ -186,6 +188,7 @@ def MessageEmitterMethod(
             messageKey = None,
             queueKey = resourceMethodQueueKey,
             groupKey = None,
+            messageHeaders = None,
             **kwargs
         ):
             verb = HttpDomain.Verb.POST
@@ -200,6 +203,10 @@ def MessageEmitterMethod(
                         key = messageKey,
                         queueKey = queueKey,
                         groupKey = groupKey,
+                        headers = {
+                            **ConverterStatic.getValueOrDefault(resourceMethodMessageHeaders, dict()),
+                            **ConverterStatic.getValueOrDefault(messageHeaders, dict())
+                        },
                         content = body
                     )
                 ),
@@ -242,16 +249,17 @@ def MessageEmitterMethod(
             wrapperManager.updateResourceInstance(args)
             resourceMethodConfig.logRequest = wrapperManager.shouldLogRequest()
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
-            resourceMethodGroupKey = None if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
-            resourceMethodMessageKey = None if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
-            if ObjectHelper.isNone(resourceMethodMessageKey):
+            messageCreationRequestKey = None if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
+            messageCreationRequestGroupKey = None if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
+            messageCreationRequestHeaders = None if MessageConstant.HEADERS_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.HEADERS_KEY_CLIENT_ATTRIBUTE_NAME)
+            if ObjectHelper.isNone(messageCreationRequestKey):
                 key = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             else:
                 key
             messageCreationRequest = MessageDto.MessageCreationRequestDto(
                 key = key,
                 queueKey = resourceMethodQueueKey,
-                groupKey = ConverterStatic.getValueOrDefault(resourceMethodGroupKey, key)
+                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
             )
             wrapperManager.resourceInstance.queueManager.runInAThread(
                 resolveEmitterCall,
@@ -262,19 +270,20 @@ def MessageEmitterMethod(
                 requestParamClass,
                 requestClass,
 
-                # requestUrl,
-                # requestVerb,
-                # FlaskUtil.safellyGetHeaders(),
-                # FlaskUtil.safellyGetArgs(),
-                # messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
+                requestUrl,
+                requestVerb,
+                FlaskUtil.safellyGetHeaders(),
+                FlaskUtil.safellyGetArgs(),
+                messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {}),
 
                 responseClass,
                 produces,
                 httpClientResolversMap,
                 returnOnlyBody,
                 debugIt,
+                messageCreationRequest.key,
                 messageCreationRequest.groupKey,
-                messageCreationRequest.key
+                resourceMethodMessageHeaders
             )
             return messageCreationRequest
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
@@ -307,97 +316,99 @@ def resolveEmitterCall(
     requestParamClass,
     requestClass,
 
-    # requestUrl,
-    # requestVerb,
-    # requestHeaders,
-    # requestParams,
-    # requestBody,
+    requestUrl,
+    requestVerb,
+    requestHeaders,
+    requestParams,
+    requestBody,
 
     responseClass,
     produces,
     httpClientResolversMap,
     returnOnlyBody,
     debugIt,
-    resourceMethodGroupKey,
-    resourceMethodMessageKey
+    messageCreationRequestKey,
+    messageCreationRequestGroupKey,
+    resourceMethodMessageHeaders
 ):
-    # with with testapp.test_request_context(
-    #     path = requestUrl,
-    #     method = verb,
-    #     data = requestBody ###- json.dumps(requestBody),
-    #     headers = requestHeaders
-    # ):
-    resourceMethodResponse = None
-    completeResponse = None
-    try :
-        FlaskManager.validateKwargs(
-            kwargs,
-            wrapperManager.resourceInstance,
-            wrapperManager.resourceInstanceMethod,
-            requestHeaderClass,
-            requestParamClass
-        )
-        FlaskManager.validateArgs(args, requestClass, wrapperManager.resourceInstanceMethod)
-        emitterEvent = ClientUtil.getHttpClientEvent(wrapperManager.resourceInstanceMethod, *args, **kwargs)
-        if isinstance(emitterEvent, ClientUtil.ManualHttpClientEvent):
-            completeResponse = emitterEvent.completeResponse
-        elif isinstance(emitterEvent, ClientUtil.HttpClientEvent):
-            try :
-                resourceMethodResponse = httpClientResolversMap.get(
-                    emitterEvent.verb,
-                    ClientUtil.raiseHttpClientEventNotFoundException
-                )(
-                    wrapperManager.resourceInstance,
-                    *emitterEvent.args,
-                    groupKey = resourceMethodGroupKey,
-                    messageKey = resourceMethodMessageKey,
-                    **emitterEvent.kwargs
-                )
-            except Exception as exception:
-                ClientUtil.raiseException(
+    with wrapperManager.api.app.test_request_context(
+        path = requestUrl,
+        method = verb,
+        data = requestBody,
+        headers = requestHeaders
+    ):
+        resourceMethodResponse = None
+        completeResponse = None
+        try :
+            FlaskManager.validateKwargs(
+                kwargs,
+                wrapperManager.resourceInstance,
+                wrapperManager.resourceInstanceMethod,
+                requestHeaderClass,
+                requestParamClass
+            )
+            FlaskManager.validateArgs(args, requestClass, wrapperManager.resourceInstanceMethod)
+            emitterEvent = ClientUtil.getHttpClientEvent(wrapperManager.resourceInstanceMethod, *args, **kwargs)
+            if isinstance(emitterEvent, ClientUtil.ManualHttpClientEvent):
+                completeResponse = emitterEvent.completeResponse
+            elif isinstance(emitterEvent, ClientUtil.HttpClientEvent):
+                try :
+                    resourceMethodResponse = httpClientResolversMap.get(
+                        emitterEvent.verb,
+                        ClientUtil.raiseHttpClientEventNotFoundException
+                    )(
+                        wrapperManager.resourceInstance,
+                        *emitterEvent.args,
+                        groupKey = messageCreationRequestGroupKey,
+                        messageKey = messageCreationRequestKey,
+                        messageHeaders = resourceMethodMessageHeaders,
+                        **emitterEvent.kwargs
+                    )
+                except Exception as exception:
+                    ClientUtil.raiseException(
+                        resourceMethodResponse,
+                        exception,
+                        context = HttpDomain.EMITTER_CONTEXT,
+                        businessLogMessage = HttpEmitterConstant.ERROR_AT_CLIENT_CALL_MESSAGE,
+                        defaultLogMessage = HttpEmitterConstant.CLIENT_DID_NOT_SENT_ANY_MESSAGE
+                    )
+                ClientUtil.raiseExceptionIfNeeded(
                     resourceMethodResponse,
-                    exception,
                     context = HttpDomain.EMITTER_CONTEXT,
                     businessLogMessage = HttpEmitterConstant.ERROR_AT_CLIENT_CALL_MESSAGE,
                     defaultLogMessage = HttpEmitterConstant.CLIENT_DID_NOT_SENT_ANY_MESSAGE
                 )
-            ClientUtil.raiseExceptionIfNeeded(
-                resourceMethodResponse,
-                context = HttpDomain.EMITTER_CONTEXT,
-                businessLogMessage = HttpEmitterConstant.ERROR_AT_CLIENT_CALL_MESSAGE,
-                defaultLogMessage = HttpEmitterConstant.CLIENT_DID_NOT_SENT_ANY_MESSAGE
+                completeResponse = ClientUtil.getCompleteResponse(resourceMethodResponse, responseClass, produces)
+                FlaskManager.validateCompleteResponse(responseClass, completeResponse)
+            else:
+                raise Exception('Unknown emitter event')
+        except Exception as exception:
+            if isinstance(exception, GlobalException):
+                log.log(resolveEmitterCall, 'Failure at emitter method execution', exception=exception, muteStackTrace=True)
+            else:
+                log.failure(resolveEmitterCall, 'Failure at emitter method execution', exception=exception)
+            FlaskManager.raiseAndPersistGlobalException(
+                exception,
+                wrapperManager.resourceInstance,
+                wrapperManager.resourceInstanceMethod,
+                context = HttpDomain.EMITTER_CONTEXT
             )
-            completeResponse = ClientUtil.getCompleteResponse(resourceMethodResponse, responseClass, produces)
-            FlaskManager.validateCompleteResponse(responseClass, completeResponse)
+        if wrapperManager.shouldLogResponse():
+            resourceMethodResponseStatus = completeResponse[-1]
+            resourceMethodResponseHeaders = completeResponse[1]
+            resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
+            log.prettyJson(
+                wrapperManager.resourceInstanceMethod,
+                LogConstant.EMITTER_RESPONSE,
+                {
+                    'headers': resourceMethodResponseHeaders,
+                    'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),
+                    'status': resourceMethodResponseStatus
+                },
+                condition = True,
+                logLevel = log.INFO
+            )
+        if returnOnlyBody:
+            return completeResponse[0]
         else:
-            raise Exception('Unknown emitter event')
-    except Exception as exception:
-        if isinstance(exception, GlobalException):
-            log.log(resolveEmitterCall, 'Failure at emitter method execution', exception=exception, muteStackTrace=True)
-        else:
-            log.failure(resolveEmitterCall, 'Failure at emitter method execution', exception=exception)
-        FlaskManager.raiseAndPersistGlobalException(
-            exception,
-            wrapperManager.resourceInstance,
-            wrapperManager.resourceInstanceMethod,
-            context = HttpDomain.EMITTER_CONTEXT
-        )
-    if wrapperManager.shouldLogResponse():
-        resourceMethodResponseStatus = completeResponse[-1]
-        resourceMethodResponseHeaders = completeResponse[1]
-        resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
-        log.prettyJson(
-            wrapperManager.resourceInstanceMethod,
-            LogConstant.EMITTER_RESPONSE,
-            {
-                'headers': resourceMethodResponseHeaders,
-                'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),
-                'status': resourceMethodResponseStatus
-            },
-            condition = True,
-            logLevel = log.INFO
-        )
-    if returnOnlyBody:
-        return completeResponse[0]
-    else:
-        return completeResponse
+            return completeResponse

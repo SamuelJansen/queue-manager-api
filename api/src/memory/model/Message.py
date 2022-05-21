@@ -15,6 +15,7 @@ class Message:
         queueKey = None,
         groupKey = None,
         originKey = None,
+        headers = None,
         content = None,
         status = None,
         state = None,
@@ -25,6 +26,7 @@ class Message:
         self.queueKey = queueKey
         self.groupKey = groupKey
         self.originKey = originKey
+        self.headers = headers
         self.content = content
         self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
         self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)

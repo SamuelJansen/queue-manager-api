@@ -15,11 +15,11 @@ LOG_LEVEL = log.STATUS
 class MessageService:
 
     @ServiceMethod(requestClass=[MessageDto.MessageRequestDto])
-    def acceptWithoutValidation(self, dto):
+    def accept(self, dto):
         self.validator.messageModel.validateDoesNotExists(dto)
         model = self.mapper.message.fromRequestDtoToModel(dto, AuditoryUtil.getApiKeyIdentity(service=self))
         self.mapper.message.overrideModelStatus(model, ModelStatus.ACCEPTED)
-        log.prettyPython(self.acceptWithoutValidation, f'Accepting new queued message', model, logLevel=LOG_LEVEL)
+        log.prettyPython(self.accept, f'Accepting new queued message', model, logLevel=LOG_LEVEL)
         return self.mapper.message.fromModelToCreationResponseDto(self.service.memory.acceptMessage(model))
 
 
