@@ -250,6 +250,8 @@ def MessageEmitterMethod(
             resourceMethodConfig.logRequest = wrapperManager.shouldLogRequest()
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
             messageCreationRequestKey = kwargs.get(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
+            messageCreationRequestGroupKey = kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
+            messageCreationRequestHeaders = kwargs.get(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
                 key = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             else:
@@ -257,7 +259,7 @@ def MessageEmitterMethod(
             messageCreationRequest = MessageDto.MessageCreationRequestDto(
                 key = key,
                 queueKey = resourceMethodQueueKey,
-                groupKey = kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME, key)
+                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
             )
 
             emitterArgs = (
@@ -272,7 +274,10 @@ def MessageEmitterMethod(
                 produces,
                 httpClientResolversMap,
                 returnOnlyBody,
-                debugIt
+                debugIt,
+                messageCreationRequestKey,
+                messageCreationRequestGroupKey,
+                messageCreationRequestHeaders
             )
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
@@ -324,7 +329,10 @@ def resolveEmitterCall(
     produces,
     httpClientResolversMap,
     returnOnlyBody,
-    debugIt
+    debugIt,
+    messageCreationRequestKey,
+    messageCreationRequestGroupKey,
+    messageCreationRequestHeaders
 ):
 
         resourceMethodResponse = None
@@ -343,6 +351,18 @@ def resolveEmitterCall(
                 completeResponse = emitterEvent.completeResponse
             elif isinstance(emitterEvent, ClientUtil.HttpClientEvent):
                 try :
+                    emitterEvent.kwargs[MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME] = emitterEvent.kwargs.get(
+                        MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME,
+                        messageCreationRequestKey
+                    )
+                    emitterEvent.kwargs[MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME] = emitterEvent.kwargs.get(
+                        MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME,
+                        messageCreationRequestGroupKey
+                    )
+                    emitterEvent.kwargs[MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME] = emitterEvent.kwargs.get(
+                        MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME,
+                        resourceMethodMessageHeaders
+                    )
                     resourceMethodResponse = httpClientResolversMap.get(
                         emitterEvent.verb,
                         ClientUtil.raiseHttpClientEventNotFoundException
