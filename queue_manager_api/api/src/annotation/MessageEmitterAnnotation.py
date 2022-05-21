@@ -249,17 +249,15 @@ def MessageEmitterMethod(
             wrapperManager.updateResourceInstance(args)
             resourceMethodConfig.logRequest = wrapperManager.shouldLogRequest()
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
-            messageCreationRequestKey = None if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
-            messageCreationRequestGroupKey = None if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME)
-            messageCreationRequestHeaders = None if MessageConstant.HEADERS_KEY_CLIENT_ATTRIBUTE_NAME not in kwargs else kwargs.pop(MessageConstant.HEADERS_KEY_CLIENT_ATTRIBUTE_NAME)
+            messageCreationRequestKey = kwargs.get(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
                 key = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             else:
-                key
+                key = messageCreationRequestKey
             messageCreationRequest = MessageDto.MessageCreationRequestDto(
                 key = key,
                 queueKey = resourceMethodQueueKey,
-                groupKey = ConverterStatic.getValueOrDefault(messageCreationRequestGroupKey, key)
+                groupKey = kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME, key)
             )
 
             emitterArgs = (
@@ -274,10 +272,7 @@ def MessageEmitterMethod(
                 produces,
                 httpClientResolversMap,
                 returnOnlyBody,
-                debugIt,
-                messageCreationRequest.key,
-                messageCreationRequest.groupKey,
-                resourceMethodMessageHeaders
+                debugIt
             )
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
@@ -329,10 +324,7 @@ def resolveEmitterCall(
     produces,
     httpClientResolversMap,
     returnOnlyBody,
-    debugIt,
-    messageCreationRequestKey,
-    messageCreationRequestGroupKey,
-    resourceMethodMessageHeaders
+    debugIt
 ):
 
         resourceMethodResponse = None
@@ -357,9 +349,6 @@ def resolveEmitterCall(
                     )(
                         wrapperManager.resourceInstance,
                         *emitterEvent.args,
-                        groupKey = messageCreationRequestGroupKey,
-                        messageKey = messageCreationRequestKey,
-                        messageHeaders = resourceMethodMessageHeaders,
                         **emitterEvent.kwargs
                     )
                 except Exception as exception:
