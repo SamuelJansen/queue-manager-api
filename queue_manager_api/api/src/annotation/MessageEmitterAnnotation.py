@@ -289,9 +289,9 @@ def MessageEmitterMethod(
                     headers = FlaskUtil.safellyGetHeaders()
                     ###- FlaskUtil.safellyGetArgs()
                 ):
-                    rapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+                    wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
             else:
-                rapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
+                wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
 
             return messageCreationRequest
         ReflectionHelper.overrideSignatures(innerResourceInstanceMethod, wrapperManager.resourceInstanceMethod)
