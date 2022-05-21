@@ -27,7 +27,6 @@ class MessageListener:
     )
     def accept(self, dto):
         return self.service.message.globals.api.resource.emitter.message.send(dto), HttpStatus.ACCEPTED
-        # return MessageDto.MessageCreationRequestDto(), HttpStatus.ACCEPTED
 
 
     @MessageListenerMethod(url = '/test/listener/another-message',
@@ -39,4 +38,3 @@ class MessageListener:
     )
     def anotherAccept(self, dto):
         return self.service.message.globals.api.resource.emitter.message.send(dto), HttpStatus.ACCEPTED
-        # return MessageDto.MessageCreationRequestDto(), HttpStatus.ACCEPTED
