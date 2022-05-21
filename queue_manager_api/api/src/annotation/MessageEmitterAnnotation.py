@@ -285,7 +285,7 @@ def MessageEmitterMethod(
                 with wrapperManager.api.app.test_request_context(
                     path = currentRequestUrl,
                     method = FlaskUtil.safellyGetVerb(),
-                    data = FlaskUtil.safellyGetJson(),
+                    json = FlaskUtil.safellyGetRequestBody(),
                     headers = FlaskUtil.safellyGetHeaders()
                     ###- FlaskUtil.safellyGetArgs()
                 ):
