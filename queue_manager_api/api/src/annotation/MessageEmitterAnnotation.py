@@ -351,24 +351,27 @@ def resolveEmitterCall(
                 completeResponse = emitterEvent.completeResponse
             elif isinstance(emitterEvent, ClientUtil.HttpClientEvent):
                 try:
+                    messageKey = messageCreationRequestKey if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
+                        emitterEvent.kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME),
+                        messageCreationRequestKey
+                    ),
+                    groupKey = messageCreationRequestGroupKey if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
+                        emitterEvent.kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
+                        messageCreationRequestGroupKey
+                    ),
+                    messageHeaders = messageCreationRequestHeaders if MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else {
+                        **ConverterStatic.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict()),
+                        **ConverterStatic.getValueOrDefault(messageCreationRequestHeaders, dict())
+                    }
                     resourceMethodResponse = httpClientResolversMap.get(
                         emitterEvent.verb,
                         ClientUtil.raiseHttpClientEventNotFoundException
                     )(
                         wrapperManager.resourceInstance,
                         *emitterEvent.args,
-                        messageKey = ConverterStatic.getValueOrDefault(
-                            emitterEvent.kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME),
-                            messageCreationRequestKey
-                        ),
-                        groupKey = ConverterStatic.getValueOrDefault(
-                            emitterEvent.kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
-                            messageCreationRequestGroupKey
-                        ),
-                        messageHeaders = {
-                            **ConverterStatic.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict())
-                            **ConverterStatic.getValueOrDefault(messageCreationRequestHeaders, dict()),
-                        },
+                        messageKey = messageKey,
+                        groupKey = groupKey,
+                        messageHeaders = messageHeaders,
                         **emitterEvent.kwargs
                     )
                 except Exception as exception:
