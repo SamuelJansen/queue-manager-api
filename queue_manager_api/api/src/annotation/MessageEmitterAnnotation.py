@@ -286,11 +286,13 @@ def MessageEmitterMethod(
                     path = currentRequestUrl,
                     method = FlaskUtil.safellyGetVerb(),
                     json = FlaskUtil.safellyGetRequestBody(),
-                    headers = FlaskUtil.safellyGetHeaders()
-                    ###- FlaskUtil.safellyGetArgs()
+                    headers = FlaskUtil.safellyGetHeaders(),
+                    query_string = FlaskUtil.safellyGetArgs()
+                    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
                 ):
                     wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
             else:
+                log.debug(wrapperManager.resourceInstanceMethod, f'''The context "{currentRequestUrl}" didnt't started properlly. Running without a context by default''')
                 wrapperManager.resourceInstance.queueManager.runInAThread(*emitterArgs)
 
             return messageCreationRequest

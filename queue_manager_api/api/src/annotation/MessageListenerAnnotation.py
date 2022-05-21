@@ -254,8 +254,10 @@ def resolveListenerCall(
     with wrapperManager.api.app.test_request_context(
         path = requestUrl,
         method = requestVerb,
-        json = requestBody, ###- requestBody, ###-
-        headers = requestHeaders
+        json = requestBody,
+        headers = requestHeaders,
+        query_string = requestParams
+        ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
     ):
         completeResponse = None
         try:
