@@ -333,7 +333,7 @@ def resolveEmitterCall(
 ):
     with wrapperManager.api.app.test_request_context(
         path = requestUrl,
-        method = verb,
+        method = requestVerb,
         data = requestBody,
         headers = requestHeaders
     ):
