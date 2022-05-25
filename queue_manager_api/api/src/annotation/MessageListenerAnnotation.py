@@ -255,9 +255,9 @@ def resolveListenerCallWithinAContext(
     with wrapperManager.api.app.test_request_context(
         path = requestUrl,
         method = requestVerb,
-        json = requestBody,
         headers = requestHeaders,
-        query_string = requestParams
+        ###- query_string = requestParams, ###- query string already comes in the url
+        json = requestBody
     ):
         resolveListenerCall(
             args,

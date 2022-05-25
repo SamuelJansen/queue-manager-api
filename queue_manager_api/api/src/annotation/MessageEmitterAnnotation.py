@@ -374,7 +374,7 @@ def resolveEmitterCallWithinAContext(
         path = requestUrl,
         method = requestVerb,
         headers = requestHeaders,
-        query_string = requestParams,
+        ###- query_string = requestParams, ###- query string already comes in the url
         json = requestBody
     ):
         resolveEmitterCall(
