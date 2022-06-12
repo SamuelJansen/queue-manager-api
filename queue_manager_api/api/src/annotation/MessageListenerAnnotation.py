@@ -73,7 +73,7 @@ def MessageListener(
                     resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_LISTENER_MUTE_LOGS,
                     resourceTimeoutConfigKey = ConfigurationKeyConstant.API_LISTENER_TIMEOUT
                 )
-                self.queueManager = api.queueManager
+                self.manager = api.resource.manager.queue
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
         return InnerClass
     return Wrapper
@@ -175,7 +175,7 @@ def MessageListenerMethod(
                     messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {})
                 )
                 if resourceInstanceMethodRunInAThread:
-                    wrapperManager.resourceInstance.queueManager.runInAThread(resolveListenerCallWithinAContext, *listennerArgs)
+                    wrapperManager.resourceInstance.manager.runInAThread(resolveListenerCallWithinAContext, *listennerArgs)
                 else:
                     completeResponse = resolveListenerCall(*listennerArgs)
                 if ObjectHelper.isEmpty(completeResponse) or HttpStatus.BAD_REQUEST < completeResponse[-1]:

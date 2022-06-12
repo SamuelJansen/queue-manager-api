@@ -68,7 +68,7 @@ class EmissionService:
 
     @ServiceMethod(requestClass=[Emission.Emission])
     def sendInAThread(self, model):
-        self.globals.api.queueManager.runInAThread(self.send, model)
+        self.globals.api.resource.manager.queue.runInAThread(self.send, model)
 
 
     @ServiceMethod(requestClass=[Emission.Emission])

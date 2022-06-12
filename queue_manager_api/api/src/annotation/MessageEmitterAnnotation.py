@@ -72,7 +72,7 @@ def MessageEmitter(
                     resourceMuteLogsConfigKey = ConfigurationKeyConstant.API_EMITTER_MUTE_LOGS,
                     resourceTimeoutConfigKey = ConfigurationKeyConstant.API_EMITTER_TIMEOUT
                 )
-                self.queueManager = api.queueManager
+                self.manager = api.resource.manager.queue
             def emit(self, *args, **kwargs):
                 raise ClientUtil.HttpClientEvent(HttpDomain.Verb.POST, *args, eventContext=resourceEventContext, **kwargs)
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
@@ -253,7 +253,7 @@ def MessageEmitterMethod(
             httpClientResolversMap = HTTP_CLIENT_RESOLVERS_MAP
             messageCreationRequestKey = kwargs.get(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
-                messageCreationRequestKey = f'{f"{time.time():0<10}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
+                messageCreationRequestKey = f'{f"{time.time():0<18}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
             messageCreationRequestGroupKey = ConverterStatic.getValueOrDefault(
                 kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
                 messageCreationRequestKey
@@ -290,7 +290,7 @@ def MessageEmitterMethod(
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
             if ObjectHelper.isNotNone(currentRequestUrl):
-                wrapperManager.resourceInstance.queueManager.runInAThread(
+                wrapperManager.resourceInstance.manager.runInAThread(
                     *(
                         resolveEmitterCallWithinAContext,
                         *emitterArgs,
@@ -303,7 +303,7 @@ def MessageEmitterMethod(
                 )
             else:
                 log.debug(wrapperManager.resourceInstanceMethod, f'''The context "{currentRequestUrl}" didnt't started properlly. Running without a context by default''')
-                wrapperManager.resourceInstance.queueManager.runInAThread(resolveEmitterCall, *emitterArgs)
+                wrapperManager.resourceInstance.manager.runInAThread(resolveEmitterCall, *emitterArgs)
 
             if wrapperManager.shouldLogResponse():
                 resourceMethodResponseStatus = completeResponse[-1]
@@ -311,7 +311,7 @@ def MessageEmitterMethod(
                 resourceMethodResponseBody = completeResponse[0] if ObjectHelper.isNotNone(completeResponse[0]) else {'message' : HttpStatus.map(resourceMethodResponseStatus).enumName}
                 log.prettyJson(
                     wrapperManager.resourceInstanceMethod,
-                    LogConstant.EMITTER_RESPONSE,
+                    LogConstant.EMITTER_RESPONSE if ObjectHelper.isNotNone(currentRequestUrl) else 'Before Request',
                     {
                         'headers': resourceMethodResponseHeaders,
                         'body': Serializer.getObjectAsDictionary(resourceMethodResponseBody, muteLogs=not debugIt),

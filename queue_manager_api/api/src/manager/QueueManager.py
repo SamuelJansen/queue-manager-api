@@ -78,7 +78,7 @@ class QueueManager:
 
 
     def addResource(self, api, app):
-        api.queueManager = self
+        api.resource.manager.queue = self
         self.api = api
 
 
