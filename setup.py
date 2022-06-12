@@ -13,12 +13,11 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.1.22'
+VERSION = '0.1.23'
 
 SNAKE_CASE_NAME = 'queue_manager_api'
 PACKAGE_NAME = SNAKE_CASE_NAME
-REPOSITORY_NAME = SNAKE_CASE_NAME
-URL = f'https://github.com/SamuelJansen/{REPOSITORY_NAME}/'
+REPOSITORY_NAME = SNAKE_CASE_NAME.replace('_', '-')
 API = 'api'
 SRC = 'src'
 RESOURCE = 'resource'
@@ -53,7 +52,7 @@ setup(
     download_url = f'{URL}archive/v{VERSION}.tar.gz',
     keywords = ['queue', 'topic'],
     install_requires = [
-        'python-framework<1.0.0,>=0.3.87',
+        'python-framework<1.0.0,>=0.3.91',
         'globals<1.0,>=0.3.34',
         'python-helper<1.0,>=0.3.51'
     ],
