@@ -1,4 +1,5 @@
 import json
+from flask import copy_current_request_context
 
 from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper

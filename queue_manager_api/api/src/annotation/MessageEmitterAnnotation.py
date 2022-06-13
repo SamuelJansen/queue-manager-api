@@ -1,4 +1,6 @@
 import requests, time
+from flask import copy_current_request_context
+
 from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
 from python_framework import (
