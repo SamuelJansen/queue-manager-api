@@ -1,6 +1,8 @@
 import time
 
+from python_helper import Constant as c
 from python_helper import log, ReflectionHelper
+from python_framework import Serializer
 
 try:
     import ThreadUtil
@@ -19,7 +21,7 @@ def handleNotRunningThreadDictionary(threadDictionary, threadTimeout=DEFAULT_TIM
             threadDictionary.get(k).runItIfItsNotRunningYet(threadTimeout=threadTimeout)
             if not threadDictionary.get(k).isAlive():
                 threadDictionary.pop(k).kill()
-                log.debug(handleNotRunningThreadDictionary, f'The {k}th tread is finished')
+                log.log(handleNotRunningThreadDictionary, f'''Thread "{k}" finished and removed from queue''')
         time.sleep(0.01)
     for k in [*threadDictionary.keys()]:
         threadDictionary.pop(k).kill()
@@ -68,13 +70,22 @@ class QueueManager:
         log.debug(self.__init__, f'{ReflectionHelper.getName(QueueManager)} created')
 
 
+    def newTimedUuid(self):
+        return f'{f"{time.time():0<18}".replace(c.DOT, c.DASH)}{c.DASH}{Serializer.newUuid()}'
+
+
+    def newMessageKey(self):
+        return self.newTimedUuid()
+
+
     def new(self, target, *args, **kwargs):
         return ThreadUtil.ApplicationThread(target, *args, **kwargs)
 
 
     def runInAThread(self, target, *args, **kwargs):
-        thread = self.new(target, *args, threadTimeout=self.timeout, **kwargs)
-        self.threadDictionary[len(self.threadDictionary)] = thread
+        thread = self.new(target, *args, key=self.newTimedUuid(), threadTimeout=self.timeout, **kwargs)
+        self.threadDictionary[thread.key] = thread
+        log.log(self.runInAThread, f'''Thread "{thread.key}" created and added to queue''')
 
 
     def addResource(self, api, app):

@@ -177,54 +177,13 @@ def MessageListenerMethod(
                     messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {})
                 )
 
+                ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
                 @copy_current_request_context
-                def resolveListenerCallWithinAContext(
-                    args,
-                    kwargs,
-                    wrapperManager,
-                    roleRequired,
-                    apiKeyRequired,
-                    contextRequired,
-                    requestHeaderClass,
-                    requestParamClass,
-                    requestClass,
-                    responseClass,
-                    defaultResponseHeaders,
-                    consumes,
-                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                    requestUrl,
-                    requestVerb,
-                    requestHeaders,
-                    requestParams,
-                    requestBody,
-                    logRequestMessage = LogConstant.LISTENER_REQUEST,
-                    context = HttpDomain.LISTENER_CONTEXT
-                ):
-                    resolveListenerCall(
-                        args,
-                        kwargs,
-                        wrapperManager,
-                        roleRequired,
-                        apiKeyRequired,
-                        contextRequired,
-                        requestHeaderClass,
-                        requestParamClass,
-                        requestClass,
-                        responseClass,
-                        defaultResponseHeaders,
-                        consumes,
-                        resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-                        requestUrl,
-                        requestVerb,
-                        requestHeaders,
-                        requestParams,
-                        requestBody,
-                        logRequestMessage = LogConstant.LISTENER_REQUEST,
-                        context = HttpDomain.LISTENER_CONTEXT
-                    )
+                def resolveCallUsingCurrentApiContext(*args, **kwags):
+                    resolveListenerCall(*args, **kwags)
 
                 if resourceInstanceMethodRunInAThread:
-                    wrapperManager.resourceInstance.manager.runInAThread(resolveListenerCallWithinAContext, *listennerArgs)
+                    wrapperManager.resourceInstance.manager.runInAThread(resolveCallUsingCurrentApiContext, *listennerArgs)
                 else:
                     completeResponse = resolveListenerCall(*listennerArgs)
                 if ObjectHelper.isEmpty(completeResponse) or HttpStatus.BAD_REQUEST < completeResponse[-1]:
@@ -276,68 +235,66 @@ def MessageListenerMethod(
     return innerMethodWrapper
 
 
-# ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
-# @copy_current_request_context
-# def resolveListenerCallWithinAContext(
-#     args,
-#     kwargs,
-#     wrapperManager,
-#     roleRequired,
-#     apiKeyRequired,
-#     contextRequired,
-#     requestHeaderClass,
-#     requestParamClass,
-#     requestClass,
-#     responseClass,
-#     defaultResponseHeaders,
-#     consumes,
-#     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-#
-#     requestUrl,
-#     requestVerb,
-#     requestHeaders,
-#     requestParams,
-#     requestBody,
-#
-#     logRequestMessage = LogConstant.LISTENER_REQUEST,
-#     context = HttpDomain.LISTENER_CONTEXT
-# ):
-#     ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
-#     ###- https://flask.palletsprojects.com/en/2.1.x/reqcontext/
-#     ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-#     # with wrapperManager.api.app.test_request_context(
-#     #     path = requestUrl,
-#     #     method = requestVerb,
-#     #     headers = requestHeaders,
-#     #     ###- query_string = requestParams, ###- query string already comes in the url
-#     #     json = requestBody
-#     # ):
-#     ###- https://flask.palletsprojects.com/en/1.1.x/appcontext/
-#     # with wrapperManager.api.app.app_context():
-#     resolveListenerCall(
-#         args,
-#         kwargs,
-#         wrapperManager,
-#         roleRequired,
-#         apiKeyRequired,
-#         contextRequired,
-#         requestHeaderClass,
-#         requestParamClass,
-#         requestClass,
-#         responseClass,
-#         defaultResponseHeaders,
-#         consumes,
-#         resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-#
-#         requestUrl,
-#         requestVerb,
-#         requestHeaders,
-#         requestParams,
-#         requestBody,
-#
-#         logRequestMessage = LogConstant.LISTENER_REQUEST,
-#         context = HttpDomain.LISTENER_CONTEXT
-#     )
+def resolveListenerCallWithinAContext(
+    args,
+    kwargs,
+    wrapperManager,
+    roleRequired,
+    apiKeyRequired,
+    contextRequired,
+    requestHeaderClass,
+    requestParamClass,
+    requestClass,
+    responseClass,
+    defaultResponseHeaders,
+    consumes,
+    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
+    requestUrl,
+    requestVerb,
+    requestHeaders,
+    requestParams,
+    requestBody,
+
+    logRequestMessage = LogConstant.LISTENER_REQUEST,
+    context = HttpDomain.LISTENER_CONTEXT
+):
+    ###- https://flask.palletsprojects.com/en/1.1.x/appcontext/
+    # with wrapperManager.api.app.app_context():
+    ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
+    ###- https://flask.palletsprojects.com/en/2.1.x/reqcontext/
+    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
+    with wrapperManager.api.app.test_request_context(
+        path = requestUrl,
+        method = requestVerb,
+        headers = requestHeaders,
+        ###- query_string = requestParams, ###- query string already comes in the url
+        json = requestBody
+    ):
+        resolveListenerCall(
+            args,
+            kwargs,
+            wrapperManager,
+            roleRequired,
+            apiKeyRequired,
+            contextRequired,
+            requestHeaderClass,
+            requestParamClass,
+            requestClass,
+            responseClass,
+            defaultResponseHeaders,
+            consumes,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+
+            requestUrl,
+            requestVerb,
+            requestHeaders,
+            requestParams,
+            requestBody,
+
+            logRequestMessage = logRequestMessage,
+            context = context
+        )
 
 
 def resolveListenerCall(

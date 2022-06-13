@@ -1,4 +1,4 @@
-from python_helper import ObjectHelper
+from python_helper import ObjectHelper, log
 from threading import Thread
 
 
@@ -12,7 +12,8 @@ def runInSimpleThread(target, *args, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
 
 class ApplicationThread:
 
-    def __init__(self, target, *args, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
+    def __init__(self, target, *args, key=None, threadTimeout=DEFAULT_TIMEOUT, **kwargs):
+        self.key = key
         self.running = False
         self.shouldStop = False
         self.thread = Thread(
@@ -21,6 +22,7 @@ class ApplicationThread:
             kwargs = kwargs
         )
         self.timeout = threadTimeout
+        log.debug(self.__init__, f'''Thread "{self.key}" was created''')
 
 
     def run(self, threadTimeout=DEFAULT_TIMEOUT):
@@ -28,6 +30,9 @@ class ApplicationThread:
             self.thread.start()
             self.running = True
             self.shouldStop = False
+            log.debug(self.run, f'''Thread "{self.key}" stardet do run''')
+        else:
+            log.debug(self.run, f'''Thread "{self.key}" is already running''')
         # self.thread.join(timeout=threadTimeout if ObjectHelper.isNone(self.timeout) else self.timeout)
 
 
@@ -36,6 +41,7 @@ class ApplicationThread:
         self.running = False
         del self.thread
         self.thread = None
+        log.debug(self.kill, f'''Thread "{self.key}" is finished''')
 
 
     def isRunning(self):
