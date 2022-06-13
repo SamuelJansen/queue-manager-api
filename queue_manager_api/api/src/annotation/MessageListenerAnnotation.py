@@ -131,11 +131,12 @@ def MessageListenerMethod(
                 requestUrl = FlaskUtil.safellyGetUrl()
                 requestVerb = FlaskUtil.safellyGetVerb()
                 log.info(wrapperManager.resourceInstanceMethod, f'''{LogConstant.LISTENER_SPACE}{requestVerb}{c.SPACE_DASH_SPACE}{requestUrl}''')
-                try:
-                    messageCreationRequestDto = Serializer.getObjectAsDictionary(Serializer.convertFromJsonToObject(messageAsJson, MessageDto.MessageCreationRequestDto))
-                    log.prettyPython(wrapperManager.resourceInstanceMethod, f'{LogConstant.LISTENER_SPACE}Message data', messageCreationRequestDto, logLevel=log.INFO)
-                except Exception as exception:
-                    log.failure(innerResourceInstanceMethod, 'Not possible to log message data properly', exception)
+                if wrapperManager.shouldLogRequest():
+                    try:
+                        messageCreationRequestDto = Serializer.getObjectAsDictionary(Serializer.convertFromJsonToObject(messageAsJson, MessageDto.MessageCreationRequestDto))
+                        log.prettyPython(wrapperManager.resourceInstanceMethod, f'{LogConstant.LISTENER_SPACE}Message data', messageCreationRequestDto, logLevel=log.INFO)
+                    except Exception as exception:
+                        log.failure(innerResourceInstanceMethod, 'Not possible to log message data properly', exception)
             if not wrapperManager.enabled:
                 completeResponse = FlaskManager.getCompleteResponseByException(
                     GlobalException(logMessage='This resource is temporarily disabled', status=HttpStatus.SERVICE_UNAVAILABLE),
@@ -252,13 +253,15 @@ def resolveListenerCallWithinAContext(
     context = HttpDomain.LISTENER_CONTEXT
 ):
     ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-    with wrapperManager.api.app.test_request_context(
-        path = requestUrl,
-        method = requestVerb,
-        headers = requestHeaders,
-        ###- query_string = requestParams, ###- query string already comes in the url
-        json = requestBody
-    ):
+    # with wrapperManager.api.app.test_request_context(
+    #     path = requestUrl,
+    #     method = requestVerb,
+    #     headers = requestHeaders,
+    #     ###- query_string = requestParams, ###- query string already comes in the url
+    #     json = requestBody
+    # ):
+    ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
+    with wrapperManager.api.app.app_context():
         resolveListenerCall(
             args,
             kwargs,

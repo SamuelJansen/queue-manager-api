@@ -124,7 +124,7 @@ class InnerMethodWrapperManager:
 
     def updateResourceInstance(self, args):
         if ObjectHelper.isNone(self.resourceInstance):
-            if ObjectHelper.isNone(args) or ObjectHelper.isEmpty(args):
+            if ObjectHelper.isEmpty(args):
                 try:
                     self.resourceInstance = FlaskManager.getResourceSelf(
                         self.api,

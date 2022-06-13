@@ -370,13 +370,15 @@ def resolveEmitterCallWithinAContext(
     requestBody
 ):
     ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-    with wrapperManager.api.app.test_request_context(
-        path = requestUrl,
-        method = requestVerb,
-        headers = requestHeaders,
-        ###- query_string = requestParams, ###- query string already comes in the url
-        json = requestBody
-    ):
+    # with wrapperManager.api.app.test_request_context(
+    #     path = requestUrl,
+    #     method = requestVerb,
+    #     headers = requestHeaders,
+    #     ###- query_string = requestParams, ###- query string already comes in the url
+    #     json = requestBody
+    # ):
+    ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
+    with wrapperManager.api.app.app_context():
         resolveEmitterCall(
             args,
             kwargs,
