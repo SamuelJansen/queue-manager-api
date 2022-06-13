@@ -22,7 +22,7 @@ class ApplicationThread:
             kwargs = kwargs
         )
         self.timeout = threadTimeout
-        log.debug(self.__init__, f'''Thread "{self.key}" was created''')
+        log.debug(self.__init__, f'''Thread "{self.key}" created''')
 
 
     def run(self, threadTimeout=DEFAULT_TIMEOUT):
@@ -30,9 +30,9 @@ class ApplicationThread:
             self.thread.start()
             self.running = True
             self.shouldStop = False
-            log.debug(self.run, f'''Thread "{self.key}" stardet do run''')
+            log.debug(self.run, f'''Thread "{self.key}" running''')
         else:
-            log.debug(self.run, f'''Thread "{self.key}" is already running''')
+            log.warning(self.run, f'''Thread "{self.key}". "ApplicationThread.run()" called, but it is already running''')
         # self.thread.join(timeout=threadTimeout if ObjectHelper.isNone(self.timeout) else self.timeout)
 
 
@@ -41,7 +41,7 @@ class ApplicationThread:
         self.running = False
         del self.thread
         self.thread = None
-        log.debug(self.kill, f'''Thread "{self.key}" is finished''')
+        log.debug(self.kill, f'''Thread "{self.key}" finished''')
 
 
     def isRunning(self):
