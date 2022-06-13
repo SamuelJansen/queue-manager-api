@@ -290,6 +290,47 @@ def MessageEmitterMethod(
                 resourceInstanceMethodMuteStacktraceOnBusinessRuleException
             )
 
+            @copy_current_request_context
+            def resolveEmitterCallWithinAContext(
+                args,
+                kwargs,
+                wrapperManager,
+                requestHeaderClass,
+                requestParamClass,
+                requestClass,
+                responseClass,
+                produces,
+                httpClientResolversMap,
+                returnOnlyBody,
+                debugIt,
+                messageCreationRequestKey,
+                messageCreationRequestGroupKey,
+                messageCreationRequestHeaders,
+                resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+                requestUrl,
+                requestVerb,
+                requestHeaders,
+                requestParams,
+                requestBody
+            ):
+                resolveEmitterCall(
+                    args,
+                    kwargs,
+                    wrapperManager,
+                    requestHeaderClass,
+                    requestParamClass,
+                    requestClass,
+                    responseClass,
+                    produces,
+                    httpClientResolversMap,
+                    returnOnlyBody,
+                    debugIt,
+                    messageCreationRequestKey,
+                    messageCreationRequestGroupKey,
+                    messageCreationRequestHeaders,
+                    resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+                )
+
             currentRequestUrl = FlaskUtil.safellyGetUrl()
             if ObjectHelper.isNotNone(currentRequestUrl):
                 wrapperManager.resourceInstance.manager.runInAThread(
@@ -348,60 +389,60 @@ def MessageEmitterMethod(
     return innerMethodWrapper
 
 
-###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
-@copy_current_request_context
-def resolveEmitterCallWithinAContext(
-    args,
-    kwargs,
-    wrapperManager,
-    requestHeaderClass,
-    requestParamClass,
-    requestClass,
-    responseClass,
-    produces,
-    httpClientResolversMap,
-    returnOnlyBody,
-    debugIt,
-    messageCreationRequestKey,
-    messageCreationRequestGroupKey,
-    messageCreationRequestHeaders,
-    resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
-
-    requestUrl,
-    requestVerb,
-    requestHeaders,
-    requestParams,
-    requestBody
-):
-    ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
-    ###- https://flask.palletsprojects.com/en/2.1.x/reqcontext/
-    ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
-    # with wrapperManager.api.app.test_request_context(
-    #     path = requestUrl,
-    #     method = requestVerb,
-    #     headers = requestHeaders,
-    #     ###- query_string = requestParams, ###- query string already comes in the url
-    #     json = requestBody
-    # ):
-    ###- https://flask.palletsprojects.com/en/1.1.x/appcontext/
-    # with wrapperManager.api.app.app_context():
-    resolveEmitterCall(
-        args,
-        kwargs,
-        wrapperManager,
-        requestHeaderClass,
-        requestParamClass,
-        requestClass,
-        responseClass,
-        produces,
-        httpClientResolversMap,
-        returnOnlyBody,
-        debugIt,
-        messageCreationRequestKey,
-        messageCreationRequestGroupKey,
-        messageCreationRequestHeaders,
-        resourceInstanceMethodMuteStacktraceOnBusinessRuleException
-    )
+# ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
+# @copy_current_request_context
+# def resolveEmitterCallWithinAContext(
+#     args,
+#     kwargs,
+#     wrapperManager,
+#     requestHeaderClass,
+#     requestParamClass,
+#     requestClass,
+#     responseClass,
+#     produces,
+#     httpClientResolversMap,
+#     returnOnlyBody,
+#     debugIt,
+#     messageCreationRequestKey,
+#     messageCreationRequestGroupKey,
+#     messageCreationRequestHeaders,
+#     resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+#
+#     requestUrl,
+#     requestVerb,
+#     requestHeaders,
+#     requestParams,
+#     requestBody
+# ):
+#     ###- https://flask.palletsprojects.com/en/2.1.x/appcontext/
+#     ###- https://flask.palletsprojects.com/en/2.1.x/reqcontext/
+#     ###- https://werkzeug.palletsprojects.com/en/2.1.x/test/#werkzeug.test.EnvironBuilder
+#     # with wrapperManager.api.app.test_request_context(
+#     #     path = requestUrl,
+#     #     method = requestVerb,
+#     #     headers = requestHeaders,
+#     #     ###- query_string = requestParams, ###- query string already comes in the url
+#     #     json = requestBody
+#     # ):
+#     ###- https://flask.palletsprojects.com/en/1.1.x/appcontext/
+#     # with wrapperManager.api.app.app_context():
+#     resolveEmitterCall(
+#         args,
+#         kwargs,
+#         wrapperManager,
+#         requestHeaderClass,
+#         requestParamClass,
+#         requestClass,
+#         responseClass,
+#         produces,
+#         httpClientResolversMap,
+#         returnOnlyBody,
+#         debugIt,
+#         messageCreationRequestKey,
+#         messageCreationRequestGroupKey,
+#         messageCreationRequestHeaders,
+#         resourceInstanceMethodMuteStacktraceOnBusinessRuleException
+#     )
 
 
 def resolveEmitterCall(
