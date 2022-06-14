@@ -290,22 +290,30 @@ def MessageEmitterMethod(
                 resourceInstanceMethodMuteStacktraceOnBusinessRuleException
             )
 
-            ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
-            @copy_current_request_context
-            def resolveCallUsingCurrentApiContext(*args, **kwags):
-                resolveEmitterCall(*args, **kwags)
+            ###- only works if it's declared within a context
+            # if ObjectHelper.isNotNone(FlaskUtil.safellyGetUrl()):
+            #     ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
+            #     @copy_current_request_context
+            #     def resolveCallUsingCurrentApiContext(*args, **kwags):
+            #         resolveEmitterCall(*args, **kwags)
+            #     wrapperManager.resourceInstance.manager.runInAThread(
+            #         *(
+            #             resolveCallUsingCurrentApiContext,
+            #             *emitterArgs
+            #         )
+            #     )
 
             currentRequestUrl = FlaskUtil.safellyGetUrl()
             if ObjectHelper.isNotNone(currentRequestUrl):
                 wrapperManager.resourceInstance.manager.runInAThread(
                     *(
-                        resolveCallUsingCurrentApiContext,
+                        resolveEmitterCallWithinAContext,
                         *emitterArgs
-                        # , currentRequestUrl,
-                        # , FlaskUtil.safellyGetVerb(),
-                        # , FlaskUtil.safellyGetHeaders(),
-                        # , FlaskUtil.safellyGetArgs(),
-                        # , FlaskUtil.safellyGetRequestBody()
+                        , currentRequestUrl,
+                        , FlaskUtil.safellyGetVerb(),
+                        , FlaskUtil.safellyGetHeaders(),
+                        , FlaskUtil.safellyGetArgs(),
+                        , FlaskUtil.safellyGetRequestBody()
                     )
                 )
             else:

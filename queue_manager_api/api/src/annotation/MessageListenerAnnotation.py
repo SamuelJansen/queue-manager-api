@@ -177,13 +177,18 @@ def MessageListenerMethod(
                     messageAsJson.get(MessageConstant.MESSAGE_CONTENT_KEY, {})
                 )
 
-                ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
-                @copy_current_request_context
-                def resolveCallUsingCurrentApiContext(*args, **kwags):
-                    resolveListenerCall(*args, **kwags)
+                ###- only works if it's declared within a context
+                # if resourceInstanceMethodRunInAThread:
+                #     ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
+                #     @copy_current_request_context
+                #     def resolveCallUsingCurrentApiContext(*args, **kwags):
+                #         resolveListenerCall(*args, **kwags)
+                #     wrapperManager.resourceInstance.manager.runInAThread(resolveCallUsingCurrentApiContext, *listennerArgs)
+                # else:
+                #     completeResponse = resolveListenerCall(*listennerArgs)
 
                 if resourceInstanceMethodRunInAThread:
-                    wrapperManager.resourceInstance.manager.runInAThread(resolveCallUsingCurrentApiContext, *listennerArgs)
+                    wrapperManager.resourceInstance.manager.runInAThread(resolveListenerCallWithinAContext, *listennerArgs)
                 else:
                     completeResponse = resolveListenerCall(*listennerArgs)
                 if ObjectHelper.isEmpty(completeResponse) or HttpStatus.BAD_REQUEST < completeResponse[-1]:
