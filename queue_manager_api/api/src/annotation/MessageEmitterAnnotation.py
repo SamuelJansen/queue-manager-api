@@ -396,7 +396,7 @@ def resolveEmitterCallWithinAContext(
         ###- query_string = requestParams, ###- query string already comes in the url
         json = requestBody
     ):
-        usesCurrentContext(
+        resolveEmitterCall(
             args,
             kwargs,
             wrapperManager,
