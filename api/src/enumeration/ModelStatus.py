@@ -8,8 +8,8 @@ class ModelStatusEnumeration :
     PROCESSED = EnumItem()
     PROCESSED_WITH_ERRORS = EnumItem()
     UNPROCESSED = EnumItem()
-    DELIVERED = EnumItem()
-    ERROR = EnumItem()
+    # DELIVERED = EnumItem()
+    # ERROR = EnumItem()
     NOT_INFORMED = EnumItem()
 
 

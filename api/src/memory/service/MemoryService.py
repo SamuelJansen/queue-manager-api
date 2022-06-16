@@ -80,7 +80,8 @@ class MemoryService:
     @ServiceMethod()
     def removeAllProcessedMessagesAndEmissions(self):
         FINAL_STATE = [
-            ModelState.PROCESSED
+            ModelState.PROCESSED,
+            ModelState.PERSISTED
         ]
         FINAL_STATUS = [
             ModelStatus.PROCESSED,

@@ -1,5 +1,4 @@
 import requests
-from flask import copy_current_request_context
 
 from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
@@ -291,6 +290,7 @@ def MessageEmitterMethod(
             )
 
             ###- only works if it's declared within a context
+            # from flask import copy_current_request_context
             # if ObjectHelper.isNotNone(FlaskUtil.safellyGetUrl()):
             #     ###- https://flask.palletsprojects.com/en/2.1.x/api/#flask.copy_current_request_context
             #     @copy_current_request_context

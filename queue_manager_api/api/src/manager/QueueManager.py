@@ -11,18 +11,19 @@ except:
 
 
 DEFAULT_TIMEOUT = 20
+QUEUE_MANAGER_KEY = 'queue-manager'
 
 
 def handleNotRunningThreadDictionary(threadDictionary, threadTimeout=DEFAULT_TIMEOUT):
     while not threadDictionary.isRunning() and not threadDictionary.shouldStopRunning():
-        time.sleep(0.01)
+        time.sleep(0.1)
     while threadDictionary.isRunning() and not threadDictionary.shouldStopRunning():
         for k in [*threadDictionary.keys()]:
             threadDictionary.get(k).runItIfItsNotRunningYet(threadTimeout=threadTimeout)
             if not threadDictionary.get(k).isAlive():
                 threadDictionary.pop(k).kill()
                 log.log(handleNotRunningThreadDictionary, f'''Thread "{k}" finished and removed from queue''')
-        time.sleep(0.01)
+        time.sleep(0.07)
     for k in [*threadDictionary.keys()]:
         threadDictionary.pop(k).kill()
     log.debug(handleNotRunningThreadDictionary, f'Thread dictionary finished running')
@@ -65,6 +66,7 @@ class QueueManager:
         self.threadDictionaryHandler = ThreadUtil.ApplicationThread(
             handleNotRunningThreadDictionary,
             self.threadDictionary,
+            key = QUEUE_MANAGER_KEY,
             threadTimeout = self.timeout
         )
         log.debug(self.__init__, f'{ReflectionHelper.getName(QueueManager)} created')
