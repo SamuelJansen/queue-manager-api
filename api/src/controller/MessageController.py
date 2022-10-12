@@ -8,8 +8,8 @@ import MessageDto
     url = '/message/emitter',
     tag = 'Message',
     description = 'Message controller'
-    , logRequest = True
-    , logResponse = True
+    # , logRequest = True
+    # , logResponse = True
 )
 class MessageController:
 
@@ -26,8 +26,8 @@ class MessageController:
     url = '/message/emitter',
     tag = 'Message',
     description = 'Message controller'
-    , logRequest = True
-    , logResponse = True
+    # , logRequest = True
+    # , logResponse = True
 )
 class MessageAllController:
 

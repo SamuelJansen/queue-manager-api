@@ -8,8 +8,8 @@ import EmissionDto
     url = '/emission',
     tag = 'Emission',
     description = 'Emission controller'
-    , logRequest = True
-    , logResponse = True
+    # , logRequest = True
+    # , logResponse = True
 )
 class EmissionAllController:
 

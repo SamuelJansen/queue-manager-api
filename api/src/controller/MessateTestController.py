@@ -4,7 +4,13 @@ from enumeration.AccessDomain import AccessDomain
 import MessageDto
 
 
-@Controller(url = '/test/message', tag='QueueTest', description='Queue test controller')
+@Controller(
+    url = '/test/message',
+    tag = 'QueueTest',
+    description = 'Queue test controller'
+    , logRequest = True
+    , logResponse = True
+)
 class MessateTestController:
 
 
@@ -12,22 +18,24 @@ class MessateTestController:
         apiKeyRequired = ['SOMETHING_ELSE'],
         requestClass = [MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageResponseDto]
-        , logRequest = True
-        , logResponse = True
     )
     def post(self, dto):
         return ConverterStatic.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
 
 
-@Controller(url = '/test/message-error', tag='QueueTest', description='Queue test controller')
+@Controller(
+    url = '/test/message-error',
+    tag = 'QueueTest',
+    description = 'Queue test controller'
+    , logRequest = True
+    , logResponse = True
+)
 class MessateTestBulkController:
 
     @ControllerMethod(url = '/',
         apiKeyRequired = [AccessDomain.API],
         requestClass = [MessageDto.MessageRequestDto],
         responseClass = [MessageDto.MessageResponseDto]
-        , logRequest = True
-        , logResponse = True
     )
     def post(self, dto):
         return ConverterStatic.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
