@@ -13,7 +13,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.1.34'
+VERSION = '0.1.35'
 
 SNAKE_CASE_NAME = 'queue_manager_api'
 PACKAGE_NAME = SNAKE_CASE_NAME
@@ -52,9 +52,9 @@ setup(
     download_url = f'{URL}archive/v{VERSION}.tar.gz',
     keywords = ['queue', 'topic'],
     install_requires = [
-        'python-framework<1.0.0,>=0.3.91',
+        'python-framework<1.0.0,>=0.4.4',
         'globals<1.0,>=0.3.34',
-        'python-helper<1.0,>=0.3.51'
+        'python-helper<1.0,>=0.3.55'
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',

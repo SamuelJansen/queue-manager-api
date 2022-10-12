@@ -1,5 +1,5 @@
 from python_helper import log, ObjectHelper
-from python_framework import Service, ServiceMethod
+from python_framework import Service, ServiceMethod, Serializer
 
 import MessageDto
 import MessageModel, Message, EmissionModel
@@ -33,6 +33,18 @@ class MessageModelService:
             else:
                 existingModelList.append(model)
         return self.persistAll(existingModelList)
+
+
+    @ServiceMethod(requestClass=[MessageDto.MessageQueryRequestDto])
+    def findAllByQuery(self, queryDto):
+        modelList = self.findAllModelByQuery(queryDto)
+        return self.mapper.messageModel.fromModelListToResponseDtoList(modelList)
+
+
+    @ServiceMethod(requestClass=[MessageDto.MessageQueryRequestDto])
+    def findAllModelByQuery(self, queryDto):
+        query = Serializer.getObjectAsDictionary(queryDto)
+        return self.repository.messageModel.findAllByQuery(query)
 
 
     @ServiceMethod(requestClass=[Message.Message])
