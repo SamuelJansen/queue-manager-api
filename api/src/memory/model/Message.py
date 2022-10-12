@@ -1,10 +1,11 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper
-from python_framework import ConverterStatic, Serializer
+from python_framework import StaticConverter, Serializer
 from python_framework import SqlAlchemyProxy as sap
 
 from ModelAssociation import MESSAGE, EMISSION
 from constant import ModelConstant
+from helper.static import HistoryStaticHelper
 
 
 class Message:
@@ -28,14 +29,14 @@ class Message:
         self.originKey = originKey
         self.headers = headers
         self.content = content
-        self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
-        self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
+        self.status = StaticConverter.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
+        self.state = StaticConverter.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
         self.setEmissionList(emissionList)
         self.setHistory(history)
 
 
     def setEmissionList(self, emissionList):
-        self.emissionList = ConverterStatic.getValueOrDefault(emissionList, [])
+        self.emissionList = StaticConverter.getValueOrDefault(emissionList, [])
 
 
     def addEmissionList(self, emissionList):
@@ -49,20 +50,11 @@ class Message:
 
 
     def setHistory(self, history):
-        if ObjectHelper.isNone(history):
-            self.history = []
-        elif ObjectHelper.isNotList(history):
-            self.history = [str(history)]
-        else:
-            self.history = [
-                str(h) for h in ConverterStatic.getValueOrDefault(history, [])
-            ]
-        # self.history = []
+        HistoryStaticHelper.overrideMemoryHistory(self, history)
 
 
     def addHistory(self, history):
-        self.history.append(str(history))
-        # self.history = []
+        HistoryStaticHelper.addMemoryHistory(self, history)
 
 
     def __repr__(self):

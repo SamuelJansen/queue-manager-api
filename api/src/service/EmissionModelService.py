@@ -1,6 +1,7 @@
 from python_helper import log, ObjectHelper
-from python_framework import Service, ServiceMethod
+from python_framework import Service, ServiceMethod, Serializer
 
+from dto import EmissionDto
 import Emission, EmissionModel
 from constant import EmissionConstant
 from enumeration.ModelState import ModelState
@@ -33,6 +34,18 @@ class EmissionModelService:
             else:
                 existingModelList.append(model)
         return self.persistAll(existingModelList)
+
+
+    @ServiceMethod(requestClass=[EmissionDto.EmissionQueryRequestDto])
+    def findAllByQuery(self, queryDto):
+        modelList = self.findAllModelByQuery(queryDto)
+        return self.mapper.emissionModel.fromModelListToResponseDtoList(modelList)
+
+
+    @ServiceMethod(requestClass=[EmissionDto.EmissionQueryRequestDto])
+    def findAllModelByQuery(self, queryDto):
+        query = Serializer.getObjectAsDictionary(queryDto)
+        return self.repository.emissionModel.findAllByQuery(query)
 
 
     @ServiceMethod(requestClass=[[str]])

@@ -20,7 +20,6 @@ class EmissionModelMapper:
 
     @MapperMethod(requestClass=[[EmissionModel.EmissionModel]], responseClass=[[Emission.Emission]])
     def fromModelListToResponseDtoList(self, modelList, dtoList):
-        raise Exception('This shoud not be called due history raw implmentation')
         return dtoList
 
 
@@ -32,7 +31,6 @@ class EmissionModelMapper:
 
     @MapperMethod(requestClass=[EmissionModel.EmissionModel], responseClass=[Emission.Emission])
     def fromModelToResponseDto(self, model, dto):
-        raise Exception('This shoud not be called due history raw implmentation')
         return dto
 
 

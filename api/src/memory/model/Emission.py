@@ -1,10 +1,11 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper
-from python_framework import ConverterStatic, Serializer
+from python_framework import StaticConverter, Serializer
 from python_framework import SqlAlchemyProxy as sap
 
 from ModelAssociation import EMISSION, MESSAGE
 from constant import EmissionConstant, ModelConstant
+from helper.static import HistoryStaticHelper
 
 
 class Emission:
@@ -27,13 +28,13 @@ class Emission:
         self.queueKey = queueKey
         self.subscriptionKey = subscriptionKey
         self.url = url
-        self.tries = ConverterStatic.getValueOrDefault(tries, EmissionConstant.ZERO_TRIES)
+        self.tries = StaticConverter.getValueOrDefault(tries, EmissionConstant.ZERO_TRIES)
         self.onErrorUrl = onErrorUrl
-        self.onErrorTries = ConverterStatic.getValueOrDefault(onErrorTries, EmissionConstant.ZERO_TRIES)
-        self.maxTries = ConverterStatic.getValueOrDefault(maxTries, EmissionConstant.DEFAULT_MAX_TRIES)
-        self.backOff = ConverterStatic.getValueOrDefault(backOff, EmissionConstant.DEFAULT_BACKOFF)
-        self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
-        self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
+        self.onErrorTries = StaticConverter.getValueOrDefault(onErrorTries, EmissionConstant.ZERO_TRIES)
+        self.maxTries = StaticConverter.getValueOrDefault(maxTries, EmissionConstant.DEFAULT_MAX_TRIES)
+        self.backOff = StaticConverter.getValueOrDefault(backOff, EmissionConstant.DEFAULT_BACKOFF)
+        self.status = StaticConverter.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
+        self.state = StaticConverter.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
         self.setMessage(message)
         self.setHistory(history)
 
@@ -64,7 +65,7 @@ class Emission:
 
 
     def getHeaders(self):
-        return dict() if ObjectHelper.isNone(self.message) else ConverterStatic.getValueOrDefault(self.message.headers, dict())
+        return dict() if ObjectHelper.isNone(self.message) else StaticConverter.getValueOrDefault(self.message.headers, dict())
 
 
     def getContent(self):
@@ -72,20 +73,11 @@ class Emission:
 
 
     def setHistory(self, history):
-        if ObjectHelper.isNone(history):
-            self.history = []
-        elif ObjectHelper.isNotList(history):
-            self.history = [str(history)]
-        else:
-            self.history = [
-                str(h) for h in ConverterStatic.getValueOrDefault(history, [])
-            ]
-        # self.history = []
+        HistoryStaticHelper.overrideMemoryHistory(self, history)
 
 
     def addHistory(self, history):
-        self.history.append(str(history))
-        # self.history = []
+        HistoryStaticHelper.addMemoryHistory(self, history)
 
 
     def __repr__(self):

@@ -11,6 +11,11 @@ from enumeration.ModelStatus import ModelStatus
 @Mapper()
 class EmissionMapper:
 
+    @MapperMethod(requestClass=[[Emission.Emission]], responseClass=[[EmissionDto.EmissionQueryResponseDto]])
+    def fromModelListToQueryResponseDtoList(self, model, dto):
+        return dto
+
+
     @MapperMethod(requestClass=[[EmissionDto.EmissionRequestDto]], responseClass=[[Emission.Emission]])
     def fromRequestDtoListToModelList(self, dtoList, modelList):
         self.overrideAllModelState(modelList, ModelState.INSTANTIATED)

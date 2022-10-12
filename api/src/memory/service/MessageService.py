@@ -42,6 +42,12 @@ class MessageService:
             raise exception
 
 
+    @ServiceMethod(requestClass=[MessageDto.MessageQueryRequestDto])
+    def findAllByQuery(self, params):
+        modelList = self.service.messageModel.findAllByQuery(params)
+        return self.mapper.message.fromModelListToQueryResponseDtoList(modelList)
+
+
     @ServiceMethod()
     def updateAllModifiedFromMemory(self):
         modelList = self.service.memory.getAllModifiedMessages()

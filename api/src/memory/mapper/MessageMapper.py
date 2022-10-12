@@ -11,6 +11,11 @@ from enumeration.ModelStatus import ModelStatus
 @Mapper()
 class MessageMapper:
 
+    @MapperMethod(requestClass=[[Message.Message]], responseClass=[[MessageDto.MessageQueryResponseDto]])
+    def fromModelListToQueryResponseDtoList(self, modelList, dtoList):
+        return dtoList
+
+
     @MapperMethod(requestClass=[Message.Message], responseClass=[MessageDto.MessageCreationResponseDto])
     def fromModelToCreationResponseDto(self, model, dto):
         return dto

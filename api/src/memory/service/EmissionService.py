@@ -6,7 +6,7 @@ from constant import EmissionConstant
 from enumeration.ModelState import ModelState
 from enumeration.ModelStatus import ModelStatus
 
-import MessageDto
+import MessageDto, EmissionDto
 import Emission, Message, SubscriptionModel, QueueModel
 
 
@@ -111,6 +111,12 @@ class EmissionService:
     @ServiceMethod(requestClass=[str, dict, MessageDto.MessageRequestDto])
     def sendToDestiny(self, url, headers, messageRequestDto):
         return self.client.emission.send(url, messageRequestDto, headers=headers)
+
+
+    @ServiceMethod(requestClass=[EmissionDto.EmissionQueryRequestDto])
+    def findAllByQuery(self, params):
+        modelList = self.service.emissionModel.findAllByQuery(params)
+        return self.mapper.emission.fromModelListToQueryResponseDtoList(modelList)
 
 
     @ServiceMethod()

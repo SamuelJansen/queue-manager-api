@@ -1,3 +1,4 @@
+from python_helper import ObjectHelper
 from python_framework import Repository
 
 import MessageModel

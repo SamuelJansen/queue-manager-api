@@ -6,7 +6,7 @@ from python_framework import SqlAlchemyProxy as sap
 from ModelAssociation import EMISSION, MESSAGE, MODEL
 from util import ModelUtil
 from constant import EmissionConstant, ModelConstant
-from helper.static import EmissionModelHelperStatic
+from helper.static import EmissionModelHelperStatic, HistoryStaticHelper
 
 
 class EmissionModel(MODEL):
@@ -86,11 +86,11 @@ class EmissionModel(MODEL):
 
 
     def setHistory(self, history):
-        self.history = str(history)
+        HistoryStaticHelper.overrideModelHistory(self, history)
 
 
     def addHistory(self, history):
-        self.history = str(history)
+        HistoryStaticHelper.addModelHistory(self, history)
 
 
     def __repr__(self):

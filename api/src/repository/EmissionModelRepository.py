@@ -31,14 +31,10 @@ class EmissionModelRepository:
         self.repository.session.commit()
         return modelList
 
-    def existsByKey(self, key):
-        return self.repository.existsByKeyAndCommit(key, self.model)
-
-    def notExistsByKey(self, key):
-        return not self.existsByKey(key)
-
-    def deleteByKey(self, key):
-        self.repository.deleteByKeyAndCommit(key, self.model)
+    def findAllBySubscriptionKeyIn(self, subscriptionKeyList):
+        modelList = self.repository.session.query(self.model).filter(self.model.subscriptionKey.in_(subscriptionKeyList)).all()
+        self.repository.session.commit()
+        return modelList
 
     def findById(self, id):
         if self.existsById(id):
@@ -49,16 +45,31 @@ class EmissionModelRepository:
         self.repository.session.commit()
         return modelList
 
+    def findAllByQuery(self, query):
+        modelList = self.repository.session.query(self.model).filter_by(
+            **{
+                k: v
+                for k, v in query.items()
+                if ObjectHelper.isNotNone(v)
+            }
+        ).all()
+        self.repository.session.commit()
+        return self.repository.load(modelList)
+
+    def existsByKey(self, key):
+        return self.repository.existsByKeyAndCommit(key, self.model)
+
+    def notExistsByKey(self, key):
+        return not self.existsByKey(key)
+
     def existsById(self, id):
         return self.repository.existsByIdAndCommit(id, self.model)
 
     def notExistsById(self, id):
         return not self.existsById(id)
 
+    def deleteByKey(self, key):
+        self.repository.deleteByKeyAndCommit(key, self.model)
+
     def deleteById(self, id):
         self.repository.deleteByIdAndCommit(id, self.model)
-
-    def findAllBySubscriptionKeyIn(self, subscriptionKeyList):
-        modelList = self.repository.session.query(self.model).filter(self.model.subscriptionKey.in_(subscriptionKeyList)).all()
-        self.repository.session.commit()
-        return modelList
