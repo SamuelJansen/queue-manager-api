@@ -6,6 +6,9 @@ from queue_manager_api.api.src.constant import HttpEmitterConstant
 from queue_manager_api.api.src.constant import SubscriptionConstant
 from queue_manager_api.api.src.constant import MessageConstant
 
+from queue_manager_api.api.src.enumeration import ModelState
+from queue_manager_api.api.src.enumeration import ModelStatus
+
 from queue_manager_api.api.src.dto import QueueDto
 from queue_manager_api.api.src.dto import SubscriptionDto
 from queue_manager_api.api.src.dto import MessageDto

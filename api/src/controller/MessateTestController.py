@@ -1,4 +1,4 @@
-from python_framework import Controller, ControllerMethod, HttpStatus, ConverterStatic
+from python_framework import Controller, ControllerMethod, HttpStatus, StaticConverter
 
 from enumeration.AccessDomain import AccessDomain
 import MessageDto
@@ -20,7 +20,7 @@ class MessateTestController:
         responseClass = [MessageDto.MessageResponseDto]
     )
     def post(self, dto):
-        return ConverterStatic.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
+        return StaticConverter.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
 
 
 @Controller(
@@ -38,4 +38,4 @@ class MessateTestBulkController:
         responseClass = [MessageDto.MessageResponseDto]
     )
     def post(self, dto):
-        return ConverterStatic.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK
+        return StaticConverter.to(dto, MessageDto.MessageResponseDto), HttpStatus.OK

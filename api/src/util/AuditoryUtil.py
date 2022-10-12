@@ -1,13 +1,13 @@
 from python_helper import log, ObjectHelper
-from python_framework import SessionManager, SecurityManager, ApiKeyManager, ConverterStatic, JwtConstant
+from python_framework import SessionManager, SecurityManager, ApiKeyManager, StaticConverter, JwtConstant
 
 from constant import AuditoryConstant
 
 
 def overrideSessionData(model):
-    ConverterStatic.overrideData(
+    StaticConverter.overrideData(
         model,
-        ConverterStatic.getValueOrDefault(
+        StaticConverter.getValueOrDefault(
             getSessionIdentity(apiInstance=None),
             AuditoryConstant.DEFAULT_USER
         )
@@ -20,7 +20,7 @@ def safellyGetCurrentSession(apiInstance=None, service=None):
         currentSession = SessionManager.getCurrentSession(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
         log.debug(safellyGetCurrentSession, f'Not possible to get current session. Returning "{currentSession}" by default', exception=exception, muteStackTrace=True)
-    return ConverterStatic.getValueOrDefault(currentSession, {})
+    return StaticConverter.getValueOrDefault(currentSession, {})
 
 
 def getSessionIdentity(apiInstance=None, service=None):
@@ -28,9 +28,9 @@ def getSessionIdentity(apiInstance=None, service=None):
 
 
 def overrideApiKeyData(model):
-    ConverterStatic.overrideData(
+    StaticConverter.overrideData(
         model,
-        ConverterStatic.getValueOrDefault(
+        StaticConverter.getValueOrDefault(
             getApiKeyIdentity(apiInstance=None),
             AuditoryConstant.DEFAULT_USER
         )
@@ -43,7 +43,7 @@ def safellyGetCurrentApiKey(apiInstance=None, service=None):
         currentApiKey = ApiKeyManager.getCurrentApiKey(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
         log.debug(safellyGetCurrentApiKey, f'Not possible to get current api key. Returning "{currentApiKey}" by default', exception=exception, muteStackTrace=True)
-    return ConverterStatic.getValueOrDefault(currentApiKey, {})
+    return StaticConverter.getValueOrDefault(currentApiKey, {})
 
 
 def getApiKeyIdentity(apiInstance=None, service=None):
@@ -51,9 +51,9 @@ def getApiKeyIdentity(apiInstance=None, service=None):
 
 
 def overrideAthenticationData(model):
-    ConverterStatic.overrideData(
+    StaticConverter.overrideData(
         model,
-        ConverterStatic.getValueOrDefault(
+        StaticConverter.getValueOrDefault(
             getAthenticationIdentity(apiInstance=None),
             AuditoryConstant.DEFAULT_USER
         )
@@ -66,7 +66,7 @@ def safellyGetCurrentAthentication(apiInstance=None, service=None):
         currentAthentication = SecurityManager.getCurrentUser(apiInstance=apiInstance if ObjectHelper.isNone(service) else service.globals.api.resource.service)
     except Exception as exception:
         log.debug(safellyGetCurrentAthentication, f'Not possible to get current user. Returning "{currentAthentication}" by default', exception=exception, muteStackTrace=True)
-    return ConverterStatic.getValueOrDefault(currentAthentication, {})
+    return StaticConverter.getValueOrDefault(currentAthentication, {})
 
 
 def getAthenticationIdentity(apiInstance=None, service=None):

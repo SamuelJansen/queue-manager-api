@@ -1,7 +1,7 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper, StringHelper
 from python_framework import SqlAlchemyProxy as sap
-from python_framework import ConverterStatic
+from python_framework import StaticConverter
 
 from ModelAssociation import SUBSCRIPTION, QUEUE, MODEL
 from constant import SubscriptionConstant
@@ -38,8 +38,8 @@ class SubscriptionModel(MODEL):
         self.originKey = originKey
         self.url = url
         self.onErrorUrl = onErrorUrl
-        self.maxTries = ConverterStatic.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
-        self.backOff = ConverterStatic.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
+        self.maxTries = StaticConverter.getValueOrDefault(maxTries, SubscriptionConstant.DEFAULT_MAX_TRIES)
+        self.backOff = StaticConverter.getValueOrDefault(backOff, SubscriptionConstant.DEFAULT_BACKOFF)
         self.setQueue(queue, queueId=queueId)
 
 

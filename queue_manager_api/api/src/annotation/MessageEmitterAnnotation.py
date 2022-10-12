@@ -4,7 +4,7 @@ from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
 from python_framework import (
     FlaskManager,
-    ConverterStatic,
+    StaticConverter,
     FlaskUtil,
     ClientUtil,
     LogConstant,
@@ -46,7 +46,7 @@ def MessageEmitter(
 ):
     def Wrapper(OuterClass, *outterArgs, **outterKwargs):
         resourceUrl = url
-        resourceHeaders = ConverterStatic.getValueOrDefault(headers, dict())
+        resourceHeaders = StaticConverter.getValueOrDefault(headers, dict())
         resourceTimeout = timeout
         resourceEventContext = eventContext
         resourceLogRequest = logRequest
@@ -207,8 +207,8 @@ def MessageEmitterMethod(
                         queueKey = queueKey,
                         groupKey = groupKey,
                         headers = {
-                            **ConverterStatic.getValueOrDefault(resourceMethodMessageHeaders, dict()),
-                            **ConverterStatic.getValueOrDefault(messageHeaders, dict())
+                            **StaticConverter.getValueOrDefault(resourceMethodMessageHeaders, dict()),
+                            **StaticConverter.getValueOrDefault(messageHeaders, dict())
                         },
                         content = body
                     )
@@ -235,9 +235,9 @@ def MessageEmitterMethod(
                     resourceInstanceMethod,
                     LogConstant.EMITTER_REQUEST,
                     {
-                        'headers': ConverterStatic.getValueOrDefault(headers, dict()),
-                        'query': ConverterStatic.getValueOrDefault(params, dict()),
-                        'body': ConverterStatic.getValueOrDefault(body, dict()),
+                        'headers': StaticConverter.getValueOrDefault(headers, dict()),
+                        'query': StaticConverter.getValueOrDefault(params, dict()),
+                        'body': StaticConverter.getValueOrDefault(body, dict()),
                         **parsetRequestKwargs
                     },
                     condition = True,
@@ -255,7 +255,7 @@ def MessageEmitterMethod(
             messageCreationRequestKey = kwargs.get(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME)
             if ObjectHelper.isNone(messageCreationRequestKey):
                 messageCreationRequestKey = wrapperManager.resourceInstance.manager.newMessageKey()
-            messageCreationRequestGroupKey = ConverterStatic.getValueOrDefault(
+            messageCreationRequestGroupKey = StaticConverter.getValueOrDefault(
                 kwargs.get(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
                 messageCreationRequestKey
             )
@@ -449,17 +449,17 @@ def resolveEmitterCall(
                 completeResponse = emitterEvent.completeResponse
             elif isinstance(emitterEvent, ClientUtil.HttpClientEvent):
                 try:
-                    messageKey = messageCreationRequestKey if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
+                    messageKey = messageCreationRequestKey if MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else StaticConverter.getValueOrDefault(
                         emitterEvent.kwargs.pop(MessageConstant.MESSAGE_KEY_CLIENT_ATTRIBUTE_NAME),
                         messageCreationRequestKey
                     )
-                    groupKey = messageCreationRequestGroupKey if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else ConverterStatic.getValueOrDefault(
+                    groupKey = messageCreationRequestGroupKey if MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else StaticConverter.getValueOrDefault(
                         emitterEvent.kwargs.pop(MessageConstant.GROUP_KEY_CLIENT_ATTRIBUTE_NAME),
                         messageCreationRequestGroupKey
                     )
                     messageHeaders = messageCreationRequestHeaders if MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME not in emitterEvent.kwargs else {
-                        **ConverterStatic.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict()),
-                        **ConverterStatic.getValueOrDefault(messageCreationRequestHeaders, dict())
+                        **StaticConverter.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict()),
+                        **StaticConverter.getValueOrDefault(messageCreationRequestHeaders, dict())
                     }
                     resourceMethodResponse = httpClientResolversMap.get(
                         emitterEvent.verb,

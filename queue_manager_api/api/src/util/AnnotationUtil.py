@@ -2,7 +2,7 @@ from python_helper import Constant as c
 from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringHelper
 from python_framework import (
     FlaskManager,
-    ConverterStatic,
+    StaticConverter,
     Listener,
     ListenerMethod,
     FlaskUtil,
@@ -33,17 +33,17 @@ def initializeComunicationLayerResource(
     defaultTimeout = DEFAULT_TIMEOUT
 ):
     api = FlaskUtil.retrieveApiInstance(apiInstance=api, arguments=(resourceInstance,))
-    resourceInstance.enabled = enabled and ConverterStatic.getValueOrDefault(
+    resourceInstance.enabled = enabled and StaticConverter.getValueOrDefault(
         api.globals.getApiSetting(resourceEnabledConfigKey),
         defaultEnabled
     )
-    resourceInstance.muteLogs = muteLogs or ConverterStatic.getValueOrDefault(
+    resourceInstance.muteLogs = muteLogs or StaticConverter.getValueOrDefault(
         api.globals.getApiSetting(resourceMuteLogsConfigKey),
         defaultMuteLogs
     )
-    resourceInstance.timeout = ConverterStatic.getValueOrDefault(
+    resourceInstance.timeout = StaticConverter.getValueOrDefault(
         timeout,
-        ConverterStatic.getValueOrDefault(
+        StaticConverter.getValueOrDefault(
             api.globals.getApiSetting(resourceTimeoutConfigKey),
             defaultTimeout
         )
@@ -94,24 +94,24 @@ class InnerMethodWrapperManager:
         self.defaultEnabled = defaultEnabled
         self.defaultMuteLogs = defaultMuteLogs
         self.defaultTimeout = defaultTimeout
-        self.enabled = enabled and ConverterStatic.getValueOrDefault(
+        self.enabled = enabled and StaticConverter.getValueOrDefault(
             self.api.globals.getApiSetting(resourceEnabledConfigKey),
             self.defaultEnabled
         )
-        self.muteLogs = muteLogs or ConverterStatic.getValueOrDefault(
+        self.muteLogs = muteLogs or StaticConverter.getValueOrDefault(
             self.api.globals.getApiSetting(resourceMuteLogsConfigKey),
             self.defaultMuteLogs
         )
-        self.timeout = ConverterStatic.getValueOrDefault(
+        self.timeout = StaticConverter.getValueOrDefault(
             timeout,
-            ConverterStatic.getValueOrDefault(
+            StaticConverter.getValueOrDefault(
                 self.api.globals.getApiSetting(resourceTimeoutConfigKey),
                 self.defaultTimeout
             )
         )
         self.logRequest = logRequest
         self.logResponse = logResponse
-        self.resourceInstance = self.updateResourceInstance(ConverterStatic.getValueOrDefault(resourceInstanceMethodArguments, list()))
+        self.resourceInstance = self.updateResourceInstance(StaticConverter.getValueOrDefault(resourceInstanceMethodArguments, list()))
 
 
     def shouldLogRequest(self):
@@ -136,13 +136,13 @@ class InnerMethodWrapperManager:
             else :
                 self.resourceInstance = args[0]
         try :
-            resourceInstanceEnabled = ConverterStatic.getValueOrDefault(self.resourceInstance.enabled, self.defaultEnabled)
-            resourceInstanceMuteLogs = ConverterStatic.getValueOrDefault(self.resourceInstance.muteLogs, self.defaultMuteLogs)
-            self.timeout = ConverterStatic.getValueOrDefault(self.timeout, ConverterStatic.getValueOrDefault(self.resourceInstance.timeout, self.defaultTimeout))
-            self.enabled = resourceInstanceEnabled and ConverterStatic.getValueOrDefault(self.enabled, self.defaultEnabled)
-            self.muteLogs = resourceInstanceMuteLogs or ConverterStatic.getValueOrDefault(self.muteLogs, self.defaultMuteLogs)
-            self.logRequest = self.logRequest and ConverterStatic.getValueOrDefault(self.resourceInstance.logRequest, False)
-            self.logResponse = self.logResponse and ConverterStatic.getValueOrDefault(self.resourceInstance.logResponse, False)
+            resourceInstanceEnabled = StaticConverter.getValueOrDefault(self.resourceInstance.enabled, self.defaultEnabled)
+            resourceInstanceMuteLogs = StaticConverter.getValueOrDefault(self.resourceInstance.muteLogs, self.defaultMuteLogs)
+            self.timeout = StaticConverter.getValueOrDefault(self.timeout, StaticConverter.getValueOrDefault(self.resourceInstance.timeout, self.defaultTimeout))
+            self.enabled = resourceInstanceEnabled and StaticConverter.getValueOrDefault(self.enabled, self.defaultEnabled)
+            self.muteLogs = resourceInstanceMuteLogs or StaticConverter.getValueOrDefault(self.muteLogs, self.defaultMuteLogs)
+            self.logRequest = self.logRequest and StaticConverter.getValueOrDefault(self.resourceInstance.logRequest, False)
+            self.logResponse = self.logResponse and StaticConverter.getValueOrDefault(self.resourceInstance.logResponse, False)
         except Exception as exception:
             log.log(self.updateResourceInstance, f'Not possible to update "{self.resourceInstanceName}" resource instance configurations properly. Make sure to do it within method usage scope', exception=exception, muteStackTrace=True)
         return self.resourceInstance

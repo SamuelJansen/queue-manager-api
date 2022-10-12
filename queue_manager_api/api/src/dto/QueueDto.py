@@ -1,4 +1,4 @@
-from python_framework import ConverterStatic
+from python_framework import StaticConverter
 
 
 class QueueRequestDto:
@@ -7,7 +7,7 @@ class QueueRequestDto:
         subscriptionList = None
     ):
         self.key = key
-        self.subscriptionList = ConverterStatic.getValueOrDefault(subscriptionList, [])
+        self.subscriptionList = StaticConverter.getValueOrDefault(subscriptionList, [])
 
 
 class QueueResponseDto:
@@ -16,4 +16,4 @@ class QueueResponseDto:
         subscriptionList = None
     ):
         self.key = key
-        self.subscriptionList = ConverterStatic.getValueOrDefault(subscriptionList, [])
+        self.subscriptionList = StaticConverter.getValueOrDefault(subscriptionList, [])

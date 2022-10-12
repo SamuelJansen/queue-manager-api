@@ -1,6 +1,6 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper, StringHelper
-from python_framework import Mapper, MapperMethod, EnumItem, ConverterStatic
+from python_framework import Mapper, MapperMethod, EnumItem, StaticConverter
 
 import MessageModel
 import Message
@@ -43,7 +43,7 @@ class MessageModelMapper:
     @MapperMethod(requestClass=[MessageModel.MessageModel, EnumItem])
     def overrideModelState(self, model, state):
         model.state = state
-        ConverterStatic.overrideDateData(model)
+        StaticConverter.overrideDateData(model)
 
 
     @MapperMethod(requestClass=[[MessageModel.MessageModel], EnumItem])

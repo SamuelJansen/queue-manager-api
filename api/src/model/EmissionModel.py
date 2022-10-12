@@ -1,6 +1,6 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper, StringHelper
-from python_framework import ConverterStatic
+from python_framework import StaticConverter
 from python_framework import SqlAlchemyProxy as sap
 
 from ModelAssociation import EMISSION, MESSAGE, MODEL
@@ -62,23 +62,23 @@ class EmissionModel(MODEL):
         self.messageKey = messageKey
         self.originKey = originKey
         self.url = url
-        self.tries = ConverterStatic.getValueOrDefault(tries, EmissionConstant.ZERO_TRIES)
+        self.tries = StaticConverter.getValueOrDefault(tries, EmissionConstant.ZERO_TRIES)
         self.onErrorUrl = onErrorUrl
-        self.onErrorTries = ConverterStatic.getValueOrDefault(onErrorTries, EmissionConstant.ZERO_TRIES)
-        self.maxTries = ConverterStatic.getValueOrDefault(maxTries, EmissionConstant.DEFAULT_MAX_TRIES)
-        self.backOff = ConverterStatic.getValueOrDefault(backOff, EmissionConstant.DEFAULT_BACKOFF)
-        self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
-        self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
+        self.onErrorTries = StaticConverter.getValueOrDefault(onErrorTries, EmissionConstant.ZERO_TRIES)
+        self.maxTries = StaticConverter.getValueOrDefault(maxTries, EmissionConstant.DEFAULT_MAX_TRIES)
+        self.backOff = StaticConverter.getValueOrDefault(backOff, EmissionConstant.DEFAULT_BACKOFF)
+        self.status = StaticConverter.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
+        self.state = StaticConverter.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
         self.setHistory(history)
         self.updateKey(key=key)
 
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        ConverterStatic.overrideDateData(self)
+        StaticConverter.overrideDateData(self)
 
 
     def updateKey(self, key=None):
-        self.key = ConverterStatic.getValueOrDefault(key, EmissionModelHelperStatic.buildKey(
+        self.key = StaticConverter.getValueOrDefault(key, EmissionModelHelperStatic.buildKey(
             queueKey = self.queueKey,
             subscriptionKey = self.subscriptionKey,
             messageKey = self.messageKey

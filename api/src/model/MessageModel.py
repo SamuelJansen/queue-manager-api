@@ -1,6 +1,6 @@
 from python_helper import Constant as c
 from python_helper import ObjectHelper, StringHelper
-from python_framework import ConverterStatic, Serializer
+from python_framework import StaticConverter, Serializer
 from python_framework import SqlAlchemyProxy as sap
 
 from ModelAssociation import MESSAGE, EMISSION, MODEL
@@ -47,13 +47,13 @@ class MessageModel(MODEL):
         self.groupKey = groupKey
         self.originKey = originKey
         self.content = Serializer.jsonifyIt(content)
-        self.status = ConverterStatic.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
-        self.state = ConverterStatic.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
+        self.status = StaticConverter.getValueOrDefault(status, ModelConstant.DEFAULT_STATUS)
+        self.state = StaticConverter.getValueOrDefault(state, ModelConstant.DEFAULT_STATE)
         self.setHistory(history) ###- ModelUtil.getOneToManyData(history)
 
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        ConverterStatic.overrideDateData(self)
+        StaticConverter.overrideDateData(self)
 
 
     def setHistory(self, history):

@@ -5,7 +5,7 @@ from python_helper import ReflectionHelper, ObjectHelper, log, Function, StringH
 from python_framework import (
     FlaskManager,
     GlobalException,
-    ConverterStatic,
+    StaticConverter,
     FlaskUtil,
     Serializer,
     ConfigurationKeyConstant,
