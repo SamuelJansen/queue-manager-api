@@ -75,7 +75,7 @@ def MessageEmitter(
                 )
                 self.manager = api.resource.manager.queue
             def emit(self, *args, **kwargs):
-                raise ClientUtil.HttpClientEvent(HttpDomain.Verb.POST, *args, eventContext=resourceEventContext, **kwargs)
+                return ClientUtil.HttpClientEvent(HttpDomain.Verb.POST, *args, eventContext=resourceEventContext, **kwargs)
         ReflectionHelper.overrideSignatures(InnerClass, OuterClass)
         return InnerClass
     return Wrapper
@@ -461,8 +461,11 @@ def resolveEmitterCall(
                         **StaticConverter.getValueOrDefault(emitterEvent.kwargs.pop(MessageConstant.MESSAGE_HEADERS_KEY_CLIENT_ATTRIBUTE_NAME), dict()),
                         **StaticConverter.getValueOrDefault(messageCreationRequestHeaders, dict())
                     }
-                    resourceMethodResponse = httpClientResolversMap.get(
-                        emitterEvent.verb,
+                    resourceMethodResponse = StaticConverter.getValueOrDefault(
+                        httpClientResolversMap.get(
+                            emitterEvent.verb,
+                            ClientUtil.raiseHttpClientEventNotFoundException
+                        ),
                         ClientUtil.raiseHttpClientEventNotFoundException
                     )(
                         wrapperManager.resourceInstance,
