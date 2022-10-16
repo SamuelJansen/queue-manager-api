@@ -434,6 +434,7 @@ def resolveEmitterCall(
 ):
     resourceMethodResponse = None
     completeResponse = None
+    emitterEvent = None
     try:
         try:
             FlaskManager.validateKwargs(
@@ -507,6 +508,15 @@ def resolveEmitterCall(
     except Exception as exception:
         completeResponse = FlaskManager.getCompleteResponseByException(
             exception,
+            wrapperManager.resourceInstance,
+            wrapperManager.resourceInstanceMethod,
+            resourceInstanceMethodMuteStacktraceOnBusinessRuleException,
+            context = HttpDomain.EMITTER_CONTEXT
+        )
+    if ObjectHelper.isNone(completeResponse):
+        log.prettyPython(resolveEmitterCall, f'Fatal error at emitter call. Emmitter event', Serializer.getObjectAsDictionary(emitterEvent), logLevel=log.FAILURE)
+        completeResponse = FlaskManager.getCompleteResponseByException(
+            Exception('Fatal error at emitter call'),
             wrapperManager.resourceInstance,
             wrapperManager.resourceInstanceMethod,
             resourceInstanceMethodMuteStacktraceOnBusinessRuleException,

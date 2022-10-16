@@ -1,6 +1,8 @@
 from distutils.core import setup
 import os
 
+###- pip install queue-manager-api==0.1.40 --force --upgrade
+
 print('''Installation on linux, run:
 sudo apt install libpq-dev python3-dev
 pip3.9 install --no-cache-dir python-framework --force --upgrade
@@ -13,7 +15,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.1.40'
+VERSION = '0.1.41'
 
 SNAKE_CASE_NAME = 'queue_manager_api'
 PACKAGE_NAME = SNAKE_CASE_NAME
@@ -53,7 +55,7 @@ setup(
     download_url = f'{URL}archive/v{VERSION}.tar.gz',
     keywords = ['queue', 'topic'],
     install_requires = [
-        'python-framework<1.0.0,>=0.4.7',
+        'python-framework<1.0.0,>=0.4.8',
         'globals<1.0,>=0.3.34',
         'python-helper<1.0,>=0.3.55',
     ],
