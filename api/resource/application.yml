@@ -41,10 +41,10 @@ queue:
     message:
         api-key: ${TEST_QUEUE_MESSAGE_API_KEY:default.default.default}
         listener:
-            timeout: 2
+            timeout: (2,1)
         emitter:
             url: ${QUEUE_MESSAGE_EMITTER_BASE_URL}${api.server.base-url}
-            timeout: 2
+            timeout: (2,1)
             queue-key:
                 test-1: 'queue-test-1'
 
