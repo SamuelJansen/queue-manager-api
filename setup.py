@@ -15,7 +15,7 @@ sudo rm /usr/bin/pip
 sudo ln -s /usr/local/bin/pipX.Y /usr/bin/pip
 ''')
 
-VERSION = '0.1.41'
+VERSION = '0.1.42'
 
 SNAKE_CASE_NAME = 'queue_manager_api'
 PACKAGE_NAME = SNAKE_CASE_NAME
